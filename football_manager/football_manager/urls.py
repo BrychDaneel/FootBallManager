@@ -20,6 +20,7 @@ from views.teamlist import TeamList
 from views.team import Team
 from views.player_list import PlayerList
 from views.player import Player
+from views.match_info import MatchInfo
 
 
 urlpatterns = [
@@ -29,6 +30,6 @@ urlpatterns = [
     url(r'^team/', Team.as_view(), name='team_info'),
     url(r'^players/', PlayerList.as_view(), name='player_list'),
     url(r'^player/', Player.as_view(), name='player_info'),
-
+    url(r'^match/1', MatchInfo.as_view(), name='match_info'),
 
 ]
