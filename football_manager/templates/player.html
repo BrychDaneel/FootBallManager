@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+
+  <div class="row">
+
+
+
+    <div class="col-sm-7" style="background-color:lavenderblush;">
+    <a >
+      <h3>Leonel Messi</h3>
+    </a>
+    <a>
+      <h3>Barcelona</h3>
+    </a>
+    <p>
+    <h3>Forward</h3>
+    </p>
+    </div>
+    <div class="col-sm-5" style="background-color:lavender;">
+      <h1>STATS:</h1>
+      <p>Goals - 14</p>
+      <p>Assists - Нету</p>
+
+      </div>
+    </div>
+
+</div>
+
+
+<h1>Matches(хз надо или нет)</h1>
+<div class="list-group">
+ {% for team in teams %}
+ <div class="list-group-item">
+
+   <a href="name/{{team.id}}">Match</a>
+
+ </div>
+ {% endfor %}
+</div>
+
+
+
+{% endblock content %}

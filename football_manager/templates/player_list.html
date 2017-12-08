@@ -6,11 +6,11 @@
 <div class="list-group">
  {% for team in teams %}
  <div class="list-group-item">
-   <p>
-     {{team.eblem}}
-   </p>
-   <a href="name/{{team.id}}">{{team.name}}</a>
 
+   <a href="name/{{player.id}}" class="d-inline "> Leonel Messi </a>
+   (
+   <a href="name/{{player.team.id}}" class="d-inline "> Barcelona </a>
+   )
  </div>
  {% endfor %}
 </div>
