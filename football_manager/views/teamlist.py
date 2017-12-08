@@ -3,8 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
-
-
+import mysql.connector
+import football_manager.db_settings as dbset
 
 
 class TeamList(View):
@@ -12,12 +12,22 @@ class TeamList(View):
 
     def get(self, request):
 
-        teams = [];
-        teams.append( { "name" : "Bayern Munich", "eblem" : "B"})
-        teams.append( { "name" : "Real Madrid", "eblem" : "R"})
-        teams.append( { "name" : "PSG", "eblem" : "P"})
-        teams.append( { "name" : "Manchester United", "eblem" : "MU"})
-        teams.append( { "name" : "Chelsea", "eblem" : "C"})
+        try:
+            conn = mysql.connector.connect(host=dbset.HOST,
+                                        database=dbset.DATABASE,
+                                        user=dbset.USER,
+                                        password=dbset.PASSWORD)
+            cursor = conn.cursor()
+            cursor.execute("SELECT name, emblem FROM teams")
+
+            teams = []
+            rows = cursor.fetchall()
+            for row in rows:
+                teams.append( { "name" : row[0], "eblem" : row[1]})
+        finally:
+            cursor.close()
+            conn.close()
+
         return render(request, self.template_name, { 'teams' : teams})
 
     def post(self, request):

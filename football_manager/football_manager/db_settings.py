@@ -1,4 +1,4 @@
 HOST = 'localhost'
 DATABASE = 'football'
-USER = 'root'
-PASSWORD = ''
+USER = 'user'
+PASSWORD = '123456'
