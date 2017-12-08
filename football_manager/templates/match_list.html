@@ -1,1 +1,33 @@
-lalala
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="list-group">
+ {% for team in teams %}
+ <div class="list-group-item row">
+   <div class="col-sm-5">
+     <a>
+       Team1
+     </a>
+   </div>
+   <div class="col-sm-2 col-sm-push-1">
+     <a>
+        0:0
+     </a>
+   </div>
+   <div class="col-sm-5">
+     <a>
+       Team2
+     </a>
+   </div>
+
+
+ </div>
+ {% endfor %}
+</div>
+
+
+
+
+{% endblock content %}

@@ -16,9 +16,19 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from views.match_list import MatchList
+from views.teamlist import TeamList
+from views.team import Team
+from views.player_list import PlayerList
+from views.player import Player
 
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^matchs', MatchList.as_view(), name='match_list'),
+    url(r'^teams/', TeamList.as_view(), name='team_list'),
+    url(r'^team/', Team.as_view(), name='team_info'),
+    url(r'^players/', PlayerList.as_view(), name='player_list'),
+    url(r'^player/', Player.as_view(), name='player_info'),
+
+
 ]

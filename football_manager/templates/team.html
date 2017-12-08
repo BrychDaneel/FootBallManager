@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+  <div class="row">
+
+
+    <div class="col-sm-3 " style="background-color:lavender;">LOGO</div>
+    <div class="col-sm-9" style="background-color:lavenderblush;">
+    <p>
+      Team Name
+    </p>
+    <p>
+      City, Country
+    </p>
+    <p>
+      About arena
+    </p></div>
+      </div>
+
+</div>
+
+
+<h1> Players</h1>
+<div class="list-group">
+ {% for team in teams %}
+ <div class="list-group-item">
+
+   <a href="name/{{team.id}}">Player</a>
+
+ </div>
+ {% endfor %}
+</div>
+
+
+
+{% endblock content %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="list-group">
+ {% for team in teams %}
+ <div class="list-group-item">
+   <p>
+     {{team.eblem}}
+   </p>
+   <a href="name/{{team.id}}">{{team.name}}</a>
+
+ </div>
+ {% endfor %}
+</div>
+
+
+
+
+{% endblock content %}
