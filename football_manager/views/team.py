@@ -1,12 +1,14 @@
-from django.views.generic import TemplateView, View
+from django.views.generic import View
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 
-class MatchList(View):
 
-    template_name = 'match_list.html'
+
+
+class Team(View):
+    template_name = "team.html"
 
     def get(self, request):
 

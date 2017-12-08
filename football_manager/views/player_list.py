@@ -4,9 +4,9 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 
-class MatchList(View):
+class PlayerList(View):
 
-    template_name = 'match_list.html'
+    template_name = 'player_list.html'
 
     def get(self, request):
 
