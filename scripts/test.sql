@@ -104,6 +104,8 @@ INSERT INTO matchs(home_team, guest_team, start, arena) VALUES
     );
 
 
+
+
 INSERT INTO team_state(matchId, playerId, `number`, playHomeTeam) VALUES
     (
         (SELECT MAX(id) from matchs),
@@ -135,6 +137,7 @@ INSERT INTO team_state(matchId, playerId, `number`, playHomeTeam) VALUES
     );
 
 
+
 INSERT INTO matchs(home_team, guest_team, start, arena) VALUES
     (
         (SELECT id FROM teams WHERE name = 'New-York1'),
@@ -142,6 +145,47 @@ INSERT INTO matchs(home_team, guest_team, start, arena) VALUES
         "2017-12-9 12:00:00",
         (SELECT id FROM arena WHERE name = 'Arena3')
     );
+
+
+
+
+INSERT INTO team_state(matchId, playerId, `number`, playHomeTeam) VALUES
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` =
+            (SELECT id FROM personal_info WHERE last_name='Смит')),
+        1,
+        TRUE
+    ),
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` = 
+            (SELECT id FROM personal_info WHERE last_name='Кэмерон')),
+        2,
+        TRUE
+    ),
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` = 
+            (SELECT id FROM personal_info WHERE last_name='Сау')),
+        1,
+        FALSE
+    ),
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` = 
+            (SELECT id FROM personal_info WHERE last_name='Ю')),
+        2,
+        FALSE
+    ),
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` = 
+            (SELECT id FROM personal_info WHERE last_name='Хау')),
+        3,
+        FALSE
+    );
+
 
 
 INSERT INTO match_results(length, home_team_score, guest_team_score) VALUES

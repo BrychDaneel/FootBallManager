@@ -30,6 +30,6 @@ urlpatterns = [
     url(r'^team/([0-9]+)', Team.as_view(), name='team_info'),
     url(r'^players/', PlayerList.as_view(), name='player_list'),
     url(r'^player/([0-9]+)', Player.as_view(), name='player_info'),
-    url(r'^match/1', MatchInfo.as_view(), name='match_info'),
+    url(r'^match/([0-9]+)', MatchInfo.as_view(), name='match_info'),
 
 ]
