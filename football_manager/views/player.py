@@ -52,8 +52,10 @@ class Player(View):
                                 })
 
         finally:
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
 
         return render(request, self.template_name, {

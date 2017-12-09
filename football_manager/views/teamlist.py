@@ -12,22 +12,27 @@ class TeamList(View):
 
     def get(self, request):
 
+        conn = None
+        cursor = None
         try:
             conn = mysql.connector.connect(host=dbset.HOST,
                                         database=dbset.DATABASE,
                                         user=dbset.USER,
                                         password=dbset.PASSWORD)
             cursor = conn.cursor()
-            cursor.execute("SELECT name, emblem FROM teams")
+            cursor.execute("SELECT name, emblem, id FROM teams")
 
             teams = []
             rows = cursor.fetchall()
 
             for row in rows:
-                teams.append( { "name" : row[0], "eblem" : row[1]})
+                teams.append( { "name" : row[0], "eblem" : row[1],
+                               "id" : row[2]})
         finally:
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
         return render(request, self.template_name, { 'teams' : teams})
 
