@@ -103,6 +103,38 @@ INSERT INTO matchs(home_team, guest_team, start, arena) VALUES
         (SELECT id FROM arena WHERE name = 'Arena1')
     );
 
+
+INSERT INTO team_state(matchId, playerId, `number`, playHomeTeam) VALUES
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` =
+            (SELECT id FROM personal_info WHERE last_name='Иванов')),
+        1,
+        TRUE
+    ),
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` = 
+            (SELECT id FROM personal_info WHERE last_name='Петров')),
+        2,
+        TRUE
+    ),
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` = 
+            (SELECT id FROM personal_info WHERE last_name='Смирнов')),
+        1,
+        FALSE
+    ),
+    (
+        (SELECT MAX(id) from matchs),
+        (SELECT `id` FROM players WHERE `id` = 
+            (SELECT id FROM personal_info WHERE last_name='Петечки')),
+        2,
+        FALSE
+    );
+
+
 INSERT INTO matchs(home_team, guest_team, start, arena) VALUES
     (
         (SELECT id FROM teams WHERE name = 'New-York1'),

@@ -22,6 +22,7 @@ class TeamList(View):
 
             teams = []
             rows = cursor.fetchall()
+
             for row in rows:
                 teams.append( { "name" : row[0], "eblem" : row[1]})
         finally:

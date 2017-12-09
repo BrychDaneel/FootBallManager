@@ -9,17 +9,17 @@
 
     <div class="col-sm-5 text-left " style="background-color:lavender;">
     <h2>LOGO</h2>
-    <h2>Barcelona</h2>
-    <h2>Spain</h2>
+    <h2>{{city1}}</h2>
+    <h2>{{country1}}</h2>
     </div>
     <div class="col-sm-2 text-center" >
       <h2>---</h2>
-    <h1>1:1</h1>
+    <h1>{{score1}}:{{score2}}</h1>
   </div>
     <div class="col-sm-5 text-right" style="background-color:lavenderblush;">
     <h2>LOGO</h2>
-    <h2>Bayern Munich</h2>
-    <h2>Germany</h2>
+    <h2>{{city2}}</h2>
+    <h2>{{country2}}</h2>
     </div>
       </div>
 
@@ -29,33 +29,36 @@
 <h1 class="text-center"> Goals</h1>
 
 
+{% for goal in goals %}
+
+{% if !goal.is_home %}
  <div class="list-group-item row">
 
       <div class="col-sm-5">
 
       </div>
       <div class="col-sm-2 text-center">
-
+Germany
           <p>
-            13
+            {goal.time}
           </p>
       </div>
       <div class="col-sm-5 col-sm-pull-1">
           <p>
-            Muller
+            {goal.player_name} {goal.player_last_name}
           </p>
       </div>
  </div>
-
+{% else %}
  <div class="list-group-item row">
 
    <div class="col-sm-5 text-right col-sm-push-1  ">
-      Messi
+      {goal.player_name} {goal.player_last_name}
    </div>
    <div class="col-sm-2 text-center">
 
        <p>
-         27
+         {goal.time}
        </p>
    </div>
    <div class="col-sm-5 col-sm-pull-1">
@@ -64,7 +67,8 @@
        </p>
    </div>
  </div>
-
+{% endif %}
+{% endfor %}
 
 
 
@@ -72,25 +76,9 @@
 
  <h1 class="text-center">Foals</h1>
 
+{% for card in cards %}
 
-  <div class="list-group-item row">
-
-       <div class="col-sm-5">
-
-       </div>
-       <div class="col-sm-2 text-center">
-
-           <p>
-             18
-           </p>
-       </div>
-       <div class="col-sm-5 col-sm-pull-1">
-           <p>
-             Thiago(Yellow card)
-           </p>
-       </div>
-  </div>
-
+{% if !card.is_home %}
   <div class="list-group-item row">
 
     <div class="col-sm-5 text-right col-sm-push-1  ">
@@ -104,28 +92,12 @@
     </div>
     <div class="col-sm-5 col-sm-pull-1">
         <p>
-            James(Yellow card)
+            James({{card.color}} card)
         </p>
     </div>
   </div>
 
-  <div class="list-group-item row">
-
-    <div class="col-sm-5 text-right col-sm-push-1  ">
-
-    </div>
-    <div class="col-sm-2 text-center">
-
-        <p>
-          73
-        </p>
-    </div>
-    <div class="col-sm-5 col-sm-pull-1">
-        <p>
-            Muller(Yellow card)
-        </p>
-    </div>
-  </div>
+{% else %}
   <div class="list-group-item row">
 
     <div class="col-sm-5 text-right col-sm-push-1  ">
@@ -143,12 +115,8 @@
         </p>
     </div>
   </div>
-
-
-
-
-
-
+{% endif %}
+{% endfor %}
 
 
 

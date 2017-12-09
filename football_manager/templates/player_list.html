@@ -4,12 +4,12 @@
 
 
 <div class="list-group">
- {% for team in teams %}
+ {% for player in players %}
  <div class="list-group-item">
 
-   <a href="name/{{player.id}}" class="d-inline "> Leonel Messi </a>
+   <a href="name/{{player.id}}" class="d-inline "> {{player.name}} {{player.last_name}} </a>
    (
-   <a href="name/{{player.team.id}}" class="d-inline "> Barcelona </a>
+   <a href="name/{{player.team_id}}" class="d-inline "> {{player.team_name}} </a>
    )
  </div>
  {% endfor %}

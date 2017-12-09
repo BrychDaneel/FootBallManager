@@ -10,14 +10,12 @@
     <div class="col-sm-3 " style="background-color:lavender;">LOGO</div>
     <div class="col-sm-9" style="background-color:lavenderblush;">
     <p>
-      Team Name
+      {{name}}
     </p>
     <p>
-      City, Country
+      {{city}}, {{country}}
     </p>
-    <p>
-      About arena
-    </p></div>
+    </div>
       </div>
 
 </div>
@@ -25,10 +23,10 @@
 
 <h1> Players</h1>
 <div class="list-group">
- {% for team in teams %}
+ {% for player in players %}
  <div class="list-group-item">
 
-   <a href="name/{{team.id}}">Player</a>
+   <a href="name/{{player.id}}">{{player.first_name}} {{player.last_name}}</a>
 
  </div>
  {% endfor %}

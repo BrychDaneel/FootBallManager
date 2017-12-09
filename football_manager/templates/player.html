@@ -11,10 +11,10 @@
 
     <div class="col-sm-7" style="background-color:lavenderblush;">
     <a >
-      <h3>Leonel Messi</h3>
+      <h3>{{first_name}} {{last_name}}</h3>
     </a>
     <a>
-      <h3>Barcelona</h3>
+      <h3>{{team_name}}</h3>
     </a>
     <p>
     <h3>Forward</h3>
@@ -22,8 +22,7 @@
     </div>
     <div class="col-sm-5" style="background-color:lavender;">
       <h1>STATS:</h1>
-      <p>Goals - 14</p>
-      <p>Assists - Нету</p>
+      <p>Goals - {{goals}}</p>
 
       </div>
     </div>
@@ -33,10 +32,10 @@
 
 <h1>Matches(хз надо или нет)</h1>
 <div class="list-group">
- {% for team in teams %}
+ {% for match in matchs %}
  <div class="list-group-item">
 
-   <a href="name/{{team.id}}">Match</a>
+   <a href="name/{{match.id}}">{{match.home}} - {{match.guest}}</a>
 
  </div>
  {% endfor %}
