@@ -21,6 +21,8 @@ from views.team import Team
 from views.player_list import PlayerList
 from views.player import Player
 from views.match_info import MatchInfo
+from views.edit_player import EditPlayer
+
 
 
 urlpatterns = [
@@ -31,5 +33,6 @@ urlpatterns = [
     url(r'^players/', PlayerList.as_view(), name='player_list'),
     url(r'^player/([0-9]+)', Player.as_view(), name='player_info'),
     url(r'^match/([0-9]+)', MatchInfo.as_view(), name='match_info'),
+    url(r'^player/add/', EditPlayer.as_view(), name='edit_player'),
 
 ]

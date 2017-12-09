@@ -7,9 +7,9 @@
  {% for player in players %}
  <div class="list-group-item">
 
-   <a href="name/{{player.id}}" class="d-inline "> {{player.name}} {{player.last_name}} </a>
+   <a href="/player/{{player.id}}" class="d-inline "> {{player.name}} {{player.last_name}} </a>
    (
-   <a href="name/{{player.team_id}}" class="d-inline "> {{player.team_name}} </a>
+   <a href="/team/{{player.team_id}}" class="d-inline "> {{player.team_name}} </a>
    )
  </div>
  {% endfor %}
