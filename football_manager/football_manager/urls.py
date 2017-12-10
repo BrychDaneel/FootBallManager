@@ -38,8 +38,8 @@ urlpatterns = [
     url(r'^player/([0-9]+)', Player.as_view(), name='player_info'),
     url(r'^match/([0-9]+)', MatchInfo.as_view(), name='match_info'),
     url(r'^player/add', AddPlayer.as_view(), name='add_player'),
-    url(r'^team/add/', TeamEdit.as_view(), name='add_team'),
-    url(r'^arena/add/', ArenaEdit.as_view(), name='add_arena'),
+    url(r'^team/add/', AddTeam.as_view(), name='add_team'),
+    url(r'^arena/add/', AddArena.as_view(), name='add_arena'),
     url(r'^login', LoginView.as_view(), name='login'),
     url(r'^register', RegisterView.as_view(), name='register'),
 

@@ -20,7 +20,9 @@ class TeamList(View):
                                         user=dbset.USER,
                                         password=dbset.PASSWORD)
             cursor = conn.cursor()
-            cursor.execute("SELECT name, emblem, id FROM teams")
+            cursor.execute("""SELECT tm.name, em.image, tm.id
+                            FROM teams as tm
+                            LEFT JOIN emblems as em ON tm.emblem = em.id""")
 
             teams = []
             rows = cursor.fetchall()
