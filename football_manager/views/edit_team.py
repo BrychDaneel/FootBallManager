@@ -13,26 +13,17 @@ from PIL import Image
 import io
 
 
-class AddTeam(View):
+class EditTeam(View):
 
-    template_name = 'add_team.html'
+    template_name = 'edit_team.html'
     success_url = reverse_lazy("team_list")
     static_path = 'static'
     not_admin_url = reverse_lazy("login")
 
-    def get(self, request):
+    def get(self, request, id):
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
 
-        team_form = TeamForm()
-
-        return render(request, self.template_name, {"form":team_form})
-
-    def post(self, request):
-        if not request.session.get('is_admin', False):
-            return redirect(self.not_admin_url)
-
-        team_form = TeamForm(request.POST, request.FILES)
 
         conn = mysql.connector.connect(host=dbset.HOST,
                                     database=dbset.DATABASE,
@@ -40,10 +31,59 @@ class AddTeam(View):
                                     password=dbset.PASSWORD)
         cursor = conn.cursor()
 
+
+        cursor.execute("""SELECT tm.name, st.name, ct.name
+                          FROM teams as tm
+                          INNER JOIN sitys as st ON st.id = tm.city
+                          INNER JOIN countrys as ct ON ct.id = st.country
+                          WHERE tm.id = {}
+                          """.format(id))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if not rows:
+            raise Http404
+
+        team_form = TeamForm({
+                                'team_name' : rows[0][0],
+                                'city' : rows[0][1],
+                                'country' : rows[0][2],
+                            })
+
+        return render(request, self.template_name, {"form":team_form})
+
+    def post(self, request, id):
+        if not request.session.get('is_admin', False):
+            return redirect(self.not_admin_url)
+
+        conn = mysql.connector.connect(host=dbset.HOST,
+                            database=dbset.DATABASE,
+                            user=dbset.USER,
+                            password=dbset.PASSWORD)
+        cursor = conn.cursor()
+
+        cursor.execute("""SELECT em.id, em.image
+                          FROM teams as tm
+                          LEFT JOIN emblems as em ON tm.emblem = em.id
+                          WHERE tm.id = {}
+                          """.format(id))
+
+        rows = cursor.fetchall()
+        if not rows:
+            raise Http404
+
+        old_emblem = rows[0][0]
+        old_image = rows[0][1]
+
+        team_form = TeamForm(request.POST, request.FILES)
+
         if not team_form.is_valid():
             cursor.close()
             conn.close()
             return render(request, self.template_name, {"form":team_form})
+
 
         files = os.listdir('static/emblems')
         pid = max([int(f.split('.')[0]) for f in files] + [0]) + 1
@@ -51,6 +91,7 @@ class AddTeam(View):
         full_pname = '{}/{}'.format(self.static_path, pname)
 
         image = Image.open(io.BytesIO(team_form.cleaned_data['emblem'].read()))
+
 
         cursor.execute("""INSERT INTO emblems(image) VALUES ("{}")""".format(pname))
         cursor.execute("""SELECT id FROM emblems WHERE image = "{}" """.format(pname))
@@ -86,13 +127,22 @@ class AddTeam(View):
         city_id = rows[0][0]
 
 
-        cursor.execute('INSERT INTO teams(name, city, emblem) VALUES ("{}", {}, {})'
-                       .format(name, city_id, emblem))
+        cursor.execute("""UPDATE teams SET
+                            name = "{1}",
+                            city = {2},
+                            emblem = {3}
+                        WHERE id = {0}"""
+                       .format(id, name, city_id, emblem))
+
+        if old_emblem:
+            cursor.execute("DELETE FROM emblems WHERE id = {}".format(old_emblem))
 
         cursor.close()
         conn.commit()
         conn.close()
 
         image.save(full_pname)
+        if old_emblem:
+            os.remove(os.path.join(self.static_path, os.path.join(old_image)))
 
         return redirect(self.success_url)
