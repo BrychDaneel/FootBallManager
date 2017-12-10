@@ -56,6 +56,20 @@ bottom margin */
         <li><a href="">Matches</a></li>
         <li><a href="">Mothers</a></li>
       </ul>
+
+      {% if not request.session.user %}
+      <ul class="nav navbar-nav navbar-right">
+             <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+             <li><a href="/register"><span class="glyphicon glyphicon-log-in"></span> Register</a></li>
+           </ul>
+
+      {% else %}
+      <ul class="nav navbar-nav navbar-right">
+             <li><a href="/user/{{request.session.user.id}}">{{request.session.user.name}} </a></li>
+       </ul>
+
+      {% endif %}
+
       {% block navbar %}
       {% endblock navbar %}
     </div>
