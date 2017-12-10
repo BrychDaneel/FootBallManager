@@ -1,4 +1,19 @@
 {% extends "base.html" %}
+{% block navbar %}
+{% if not request.session.user %}
+<ul class="nav navbar-nav navbar-right">
+       <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+     </ul>
+
+{% else %}
+<ul class="nav navbar-nav navbar-right">
+       <li><a href="/user/{{request.session.user.id}}">{{request.session.user.name}} </a></li>
+ </ul>
+
+{% endif %}
+{% endblock navbar %}
+
+
 
 {% block content %}
 

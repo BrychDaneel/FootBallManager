@@ -22,6 +22,10 @@ from views.player_list import PlayerList
 from views.player import Player
 from views.match_info import MatchInfo
 from views.add_player import AddPlayer
+from views.add_team import AddTeam
+from views.add_arena import AddArena
+from views.login import LoginView
+from views.register import RegisterView
 
 
 
@@ -34,5 +38,9 @@ urlpatterns = [
     url(r'^player/([0-9]+)', Player.as_view(), name='player_info'),
     url(r'^match/([0-9]+)', MatchInfo.as_view(), name='match_info'),
     url(r'^player/add', AddPlayer.as_view(), name='add_player'),
+    url(r'^team/add/', TeamEdit.as_view(), name='add_team'),
+    url(r'^arena/add/', ArenaEdit.as_view(), name='add_arena'),
+    url(r'^login', LoginView.as_view(), name='login'),
+    url(r'^register', RegisterView.as_view(), name='register'),
 
 ]
