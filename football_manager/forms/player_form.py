@@ -3,7 +3,12 @@ from django import forms
 class PlayerForm(forms.Form):
     first_name = forms.CharField(max_length=50)
     last_name = forms.CharField(max_length=60)
-    date = forms.DateField(input_formats='%m/%d/%Y')
+    date = forms.DateField(input_formats=[
+                                            '%Y-%m-%d',      # '2006-10-25'
+                                            '%m/%d/%Y',      # '10/25/2006'
+                                            '%m/%d/%y'
+                                          ])
+
     number = forms.IntegerField(min_value=0, max_value=99)
 
     def __init__(self, team_list, role_list, *args, **kwargs):

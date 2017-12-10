@@ -57,6 +57,9 @@ class MatchInfo(View):
 
         cards = cursor.fetchall()
 
+        cursor.close()
+        conn.close()
+
         goals = [
                     {
                         'is_home' : g[0],
