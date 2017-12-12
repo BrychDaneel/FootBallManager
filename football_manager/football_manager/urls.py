@@ -29,6 +29,10 @@ from views.register import RegisterView
 from views.edit_arena import EditArena
 from views.edit_player import EditPlayer
 from views.edit_team import EditTeam
+from views.user_list import UserList
+from views.arena_list import ArenaList
+from views.add_foul import AddFoul
+from views.add_goal import AddGoal
 
 
 urlpatterns = [
@@ -47,4 +51,8 @@ urlpatterns = [
     url(r'^arena/edit/([0-9]+)', EditArena.as_view(), name='edit_arena'),
     url(r'^player/edit/([0-9]+)', EditPlayer.as_view(), name='edit_player'),
     url(r'^team/edit/([0-9]+)', EditTeam.as_view(), name='edit_team'),
+    url(r'^users', UserList.as_view(), name='user_list'),
+    url(r'^arenas', ArenaList.as_view(), name='arena_list'),
+    url(r'^add/goal/', AddGoal.as_view(), name='add_goal'),
+    url(r'^add/foul/', AddFoul.as_view(), name='add_foul'),
 ]

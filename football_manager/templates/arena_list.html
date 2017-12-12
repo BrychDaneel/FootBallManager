@@ -5,12 +5,10 @@
 {% if request.session.is_admin %}
 
 <div class="list-group">
- {% for team in teams %}
+ {% for arena in arenas %}
  <div class="list-group-item">
-   <p>
-     <img src="/static/{{team.eblem}}" width=50 height=50>
-   </p>
-   <a href="team/{{team.id}}">{{team.name}}</a>
+
+   <p>{{arena.name}} {{arena.city}} {{arena.country}}</p>
 
  </div>
  {% endfor %}
@@ -19,17 +17,15 @@
 {% else %}
 
 <div class="list-group">
- {% for team in teams %}
+ {% for arena in arenas %}
  <div class="list-group-item">
-   <p>
-     <img src="/static/{{team.eblem}}" width=50 height=50>
-   </p>
-   <a href="team/{{team.id}}">{{team.name}}</a>
+
+   <p class="d-inline">{{arena.name}} {{arena.city}} {{arena.country}}</p>
    <div class="btn-group">
-      <a href="/team/edit/{{team.id}}"  class="btn btn-xs btn-default">
+      <a href="/arena/edit/{{arena.id}}"  class="btn btn-xs btn-default">
      <span class="glyphicon glyphicon-edit"></span>
    </a>
-       <a href="/team/delete/{{team.id}}" class="btn btn-xs btn-default">
+       <a href="/arena/delete/{{arena.id}}" class="btn btn-xs btn-default">
       <span class="glyphicon glyphicon-trash"></span>
     </a>
    </div>

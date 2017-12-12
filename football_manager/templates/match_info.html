@@ -7,6 +7,36 @@
 
 <div class="container-fluid">
 
+
+  {% if not request.session.is_admin %}
+  <div class="col-sm-12">
+
+
+  <div class="btn-group pull-left">
+     <a href="/add/goal/{{team1.id}}/{{match_id}}"  class="btn btn-default">
+        Add goal
+  </a>
+      <a href="/add/foul/{{team1.id}}/{{match_id}}" class="btn btn-default">
+        Add foal
+   </a>
+  </div>
+
+  <div class="btn-group pull-center">
+     <a href="delete"  class="btn btn-default">
+    Delete Match
+  </a>
+  </div>
+  <div class="btn-group pull-right">
+     <a href="/add/goal/{{team2.id}}/{{match_id}}"  class="btn  pull-left btn-default">
+    Add goal
+  </a>
+      <a href="/add/foul/{{team2.id}}/{{match_id}}" class="btn  btn-default">
+        Add foal
+   </a>
+  </div>
+  </div>
+
+  {% endif %}
   <div class="row">
 
 
@@ -48,6 +78,16 @@
       <div class="col-sm-5 col-sm-pull-1">
           <p>
             {{goal.player_name}} {{goal.player_last_name}}
+            {% if not request.session.is_admin %}
+            <div class="btn-group">
+               <a href="/goal/edit/{{goal.id}}"  class="btn btn-xs btn-default">
+              <span class="glyphicon glyphicon-edit"></span>
+            </a>
+                <a href="/goal/delete/{{goal.id}}" class="btn btn-xs btn-default">
+               <span class="glyphicon glyphicon-trash"></span>
+             </a>
+            </div>
+            {% endif %}
           </p>
       </div>
  </div>
@@ -55,6 +95,16 @@
  <div class="list-group-item row">
 
    <div class="col-sm-5 text-right col-sm-push-1  ">
+     {% if not request.session.is_admin %}
+     <div class="btn-group">
+        <a href="/goal/edit/{{goal.id}}"  class="btn btn-xs btn-default">
+       <span class="glyphicon glyphicon-edit"></span>
+     </a>
+         <a href="/goal/delete/{{goal.id}}" class="btn btn-xs btn-default">
+        <span class="glyphicon glyphicon-trash"></span>
+      </a>
+     </div>
+     {% endif %}
       {{goal.player_name}} {{goal.player_last_name}}
    </div>
    <div class="col-sm-2 text-center">
@@ -92,8 +142,18 @@
         </p>
     </div>
     <div class="col-sm-5 col-sm-pull-1">
-        <p>
              {{card.player_name}} {{card.player_last_name}} ({{card.color}} card)
+             <p>
+               {% if not request.session.is_admin %}
+               <div class="btn-group">
+                  <a href="/foal/edit/{{foal.id}}"  class="btn btn-xs btn-default">
+                 <span class="glyphicon glyphicon-edit"></span>
+               </a>
+                   <a href="/foal/delete/{{foal.id}}" class="btn btn-xs btn-default">
+                  <span class="glyphicon glyphicon-trash"></span>
+                </a>
+               </div>
+               {% endif %}
         </p>
     </div>
   </div>
@@ -102,6 +162,17 @@
   <div class="list-group-item row">
 
     <div class="col-sm-5 text-right col-sm-push-1  ">
+      <p>
+        {% if not request.session.is_admin %}
+        <div class="btn-group">
+           <a href="/foal/edit/{{foal.id}}"  class="btn btn-xs btn-default">
+          <span class="glyphicon glyphicon-edit"></span>
+        </a>
+            <a href="/foal/delete/{{foal.id}}" class="btn btn-xs btn-default">
+           <span class="glyphicon glyphicon-trash"></span>
+         </a>
+        </div>
+        {% endif %}
       ({{card.color}} card){{card.player_name}} {{card.player_last_name}}
     </div>
     <div class="col-sm-2 text-center">

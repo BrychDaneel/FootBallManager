@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
+
 {% block content %}
 
+{% if request.session.is_admin %}
 
 <div class="list-group">
  {% for player in players %}
@@ -14,6 +16,31 @@
  </div>
  {% endfor %}
 </div>
+
+{% else %}
+
+<div class="list-group">
+ {% for player in players %}
+ <div class="list-group-item">
+
+   <a href="/player/{{player.id}}" class="d-inline "> {{player.name}} {{player.last_name}} </a>
+   (
+   <a href="/team/{{player.team_id}}" class="d-inline "> {{player.team_name}} </a>
+   )
+  <div class="btn-group">
+     <a href="/player/edit/{{player.id}}"  class="btn btn-xs btn-default">
+    <span class="glyphicon glyphicon-edit"></span>
+  </a>
+      <a href="/player/delete/{{player.id}}" class="btn btn-xs btn-default">
+     <span class="glyphicon glyphicon-trash"></span>
+   </a>
+ </div>
+ </div>
+ {% endfor %}
+</div>
+
+
+{% endif %}
 
 
 

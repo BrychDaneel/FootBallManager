@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block styles %}
+<style>
+input[type="radio"]:checked + label{
+  color: #ffffff;
+  background-color: #3fb618;
+}
+input[type="radio"] + label{
+
+}
+
+</style>
+
+{% endblock styles %}
+
+
+{% block content %}
+
+<form method="post" id="Users">
+{% csrf_token %}
+
+<div class="list-group" >
+ {% for user in users %}
+ <input name="choosen" value="{{user.name}}" id="{{user.name}}" type="radio" style="display: none"/>
+   <label for="{{user.name}}" class="list-group-item">
+   {{user.name}}
+ </label>
+ {% endfor %}
+</div>
+
+</form>
+
+<div class="form-inline">
+
+
+
+  <button type="submit" name="button" value="delete" class="btn btn-primary" form="Users">Delete</button>
+  <button type="submit" name="button" value="make_admin" class="btn btn-primary" form="Users">Made admin</button>
+
+
+</div>
+
+
+
+
+{% endblock content %}

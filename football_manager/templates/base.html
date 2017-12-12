@@ -52,12 +52,12 @@ bottom margin */
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="">Teams</a></li>
-        <li><a href="">Matches</a></li>
-        <li><a href="">Mothers</a></li>
+        <li><a href="{% url 'team_list' %}">Teams</a></li>
+        <li><a href="{% url 'match_list' %}">Matches</a></li>
+        <li><a href="{% url 'player_list' %}">Players</a></li>
       </ul>
 
-      {% if not request.session.user %}
+      {% if "user" not in request.session %}
       <ul class="nav navbar-nav navbar-right">
              <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
              <li><a href="/register"><span class="glyphicon glyphicon-log-in"></span> Register</a></li>
