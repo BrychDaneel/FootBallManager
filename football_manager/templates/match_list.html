@@ -1,17 +1,4 @@
 {% extends "base.html" %}
-{% block navbar %}
-{% if not request.session.user %}
-<ul class="nav navbar-nav navbar-right">
-       <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-     </ul>
-
-{% else %}
-<ul class="nav navbar-nav navbar-right">
-       <li><a href="/user/{{request.session.user.id}}">{{request.session.user.name}} </a></li>
- </ul>
-
-{% endif %}
-{% endblock navbar %}
 
 
 
@@ -19,21 +6,21 @@
 
 
 <div class="list-group">
- {% for team in teams %}
+ {% for match in matches%}
  <div class="list-group-item row">
    <div class="col-sm-5">
-     <a>
-       Team1
+     <a href="team/{{match.team1_id}}">
+       {{match.team1}}
      </a>
    </div>
    <div class="col-sm-2 col-sm-push-1">
-     <a>
-        0:0
+     <a href="match/{{match.id}}">
+        {{match.score1}}:{{match.score1}}
      </a>
    </div>
    <div class="col-sm-5">
-     <a>
-       Team2
+     <a href="team/{{match.team2_id}}">
+      {{match.team2}}
      </a>
    </div>
 

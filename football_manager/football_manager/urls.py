@@ -33,6 +33,12 @@ from views.user_list import UserList
 from views.arena_list import ArenaList
 from views.add_foul import AddFoul
 from views.add_goal import AddGoal
+from views.remove_foul import RemoveFoul
+from views.remove_goal import RemoveGoal
+from views.remove_team import RemoveTeam
+from views.remove_arena import RemoveArena
+from views.remove_match import RemoveMatch
+from views.remove_player import RemovePlayer
 
 
 urlpatterns = [
@@ -55,4 +61,10 @@ urlpatterns = [
     url(r'^arenas', ArenaList.as_view(), name='arena_list'),
     url(r'^add/goal/([0-9]+)', AddGoal.as_view(), name='add_goal'),
     url(r'^add/foul/([0-9]+)', AddFoul.as_view(), name='add_foul'),
+    url(r'^player/delete/([0-9]+)', RemovePlayer.as_view(), name="remove_player"),
+    url(r'^team/delete/([0-9]+)', RemoveTeam.as_view(), name="remove_team"),
+    url(r'^arena/delete/([0-9]+)', RemoveArena.as_view(), name="remove_arena"),
+    url(r'^match/delete/([0-9]+)', RemoveMatch.as_view(), name="remove_match"),
+    url(r'^goal/delete/([0-9]+)', RemoveGoal.as_view(), name="remove_goal"),
+    url(r'^foul/delete/([0-9]+)', RemoveFoul.as_view(), name="remove_foul"),
 ]
