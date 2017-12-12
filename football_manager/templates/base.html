@@ -57,7 +57,7 @@ bottom margin */
         <li><a href="{% url 'player_list' %}">Players</a></li>
       </ul>
 
-      {% if "user" not in request.session %}
+      {% if "user_id" not in request.session %}
       <ul class="nav navbar-nav navbar-right">
              <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
              <li><a href="/register"><span class="glyphicon glyphicon-log-in"></span> Register</a></li>
@@ -65,7 +65,7 @@ bottom margin */
 
       {% else %}
       <ul class="nav navbar-nav navbar-right">
-             <li><a href="/user/{{request.session.user.id}}">{{request.session.user.name}} </a></li>
+             <li><a href="/user/{{request.session.user_id}}">{{request.session.username}} </a></li>
        </ul>
 
       {% endif %}
