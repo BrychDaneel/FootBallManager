@@ -18,12 +18,28 @@ class ArenaList(View):
                                     database=dbset.DATABASE,
                                     user=dbset.USER,
                                     password=dbset.PASSWORD)
+        cursor = conn.cursor()
+        
+        cursor.execute("""SELECT ar.id, ar.name, st.name, ct.name
+                            FROM arena as ar
+                            INNER JOIN sitys as st ON st.id = ar.sity
+                            INNER JOIN countrys as ct ON ct.id = st.country""")
+        
+        ars = cursor.fetchall()
+        
+        arenas = []
+        for a in ars:
+            arenas.append({
+                            'name' : a[1],
+                            'city' : a[2],
+                            'country' : a[3],
+                            'id' : a[0],
+                            })
+        
+        cursor.close()
+        conn.close()
 
-
-        return render(request, self.template_name, {"arenas": [{"name":"1",
-                                                                "city":"2",
-                                                                "country":"3",
-                                                                "id": 1}]})
+        return render(request, self.template_name, {"arenas": arenas})
 
     def post(self, request):
         pass

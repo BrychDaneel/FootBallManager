@@ -53,6 +53,6 @@ urlpatterns = [
     url(r'^team/edit/([0-9]+)', EditTeam.as_view(), name='edit_team'),
     url(r'^users', UserList.as_view(), name='user_list'),
     url(r'^arenas', ArenaList.as_view(), name='arena_list'),
-    url(r'^add/goal/', AddGoal.as_view(), name='add_goal'),
-    url(r'^add/foul/', AddFoul.as_view(), name='add_foul'),
+    url(r'^add/goal/([0-9]+)', AddGoal.as_view(), name='add_goal'),
+    url(r'^add/foul/([0-9]+)', AddFoul.as_view(), name='add_foul'),
 ]

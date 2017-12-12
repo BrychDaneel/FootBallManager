@@ -12,11 +12,31 @@ class UserList(View):
     template_name = 'user_list.html'
 
     def get(self, request):
+        
+        
+        conn = mysql.connector.connect(host=dbset.HOST,
+                                    database=dbset.DATABASE,
+                                    user=dbset.USER,
+                                    password=dbset.PASSWORD)
+        cursor = conn.cursor()
+        
+        cursor.execute("""SELECT us.id, us.login FROM users as us
+                          WHERE 0 = 
+                            (SELECT COUNT(*) FROM admins as ad WHERE ad.user = us.id)""")
+        
+        ars = cursor.fetchall()
+        
+        users = []
+        for a in ars:
+            users.append({
+                            'name' : a[1],
+                            'id' : a[0],
+                            })
+        
+        cursor.close()
+        conn.close()
 
-        return render(request, self.template_name, { 'users' : [
-        {"id" : 1, "name" : "Nigga1"}, {"id" : 2, "name" : "Nigga2"},
-        {"id" : 3, "name" : "Nigga3"}
-    ]})
+        return render(request, self.template_name, { 'users' : users})
 
 
     def post(self, request):

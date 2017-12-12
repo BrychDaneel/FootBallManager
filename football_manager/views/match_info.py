@@ -82,6 +82,7 @@ class MatchInfo(View):
                 ]
 
         context = {
+                    'match_id' : id,
                     'goals' : goals,
                     'cards' : cards,
                     'team1' : info[0],
