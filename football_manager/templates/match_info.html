@@ -8,7 +8,7 @@
 <div class="container-fluid">
 
 
-  {% if not request.session.is_admin %}
+  {% if request.session.is_admin %}
   <div class="col-sm-12">
 
 
@@ -78,7 +78,7 @@
       <div class="col-sm-5 col-sm-pull-1">
           <p>
             {{goal.player_name}} {{goal.player_last_name}}
-            {% if not request.session.is_admin %}
+            {% if request.session.is_admin %}
             <div class="btn-group">
                <a href="/goal/edit/{{goal.id}}"  class="btn btn-xs btn-default">
               <span class="glyphicon glyphicon-edit"></span>
@@ -95,7 +95,7 @@
  <div class="list-group-item row">
 
    <div class="col-sm-5 text-right col-sm-push-1  ">
-     {% if not request.session.is_admin %}
+     {% if request.session.is_admin %}
      <div class="btn-group">
         <a href="/goal/edit/{{goal.id}}"  class="btn btn-xs btn-default">
        <span class="glyphicon glyphicon-edit"></span>
@@ -144,7 +144,7 @@
     <div class="col-sm-5 col-sm-pull-1">
              {{card.player_name}} {{card.player_last_name}} ({{card.color}} card)
              <p>
-               {% if not request.session.is_admin %}
+               {% if request.session.is_admin %}
                <div class="btn-group">
                   <a href="/foal/edit/{{foal.id}}"  class="btn btn-xs btn-default">
                  <span class="glyphicon glyphicon-edit"></span>
@@ -163,7 +163,7 @@
 
     <div class="col-sm-5 text-right col-sm-push-1  ">
       <p>
-        {% if not request.session.is_admin %}
+        {% if request.session.is_admin %}
         <div class="btn-group">
            <a href="/foal/edit/{{foal.id}}"  class="btn btn-xs btn-default">
           <span class="glyphicon glyphicon-edit"></span>

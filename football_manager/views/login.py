@@ -49,5 +49,6 @@ class LoginView(View):
 
         request.session['user_id'] = id
         request.session['is_admin'] = is_admin
+        request.session['username'] = login
 
         return redirect(self.success_url)

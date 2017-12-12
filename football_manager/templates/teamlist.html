@@ -2,7 +2,7 @@
 
 {% block content %}
 
-{% if request.session.is_admin %}
+{% if not request.session.is_admin %}
 
 <div class="list-group">
  {% for team in teams %}

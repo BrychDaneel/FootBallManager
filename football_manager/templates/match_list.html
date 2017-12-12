@@ -6,21 +6,21 @@
 
 
 <div class="list-group">
- {% for match in matches%}
+ {% for team in teams %}
  <div class="list-group-item row">
    <div class="col-sm-5">
-     <a href="team/{{match.team1_id}}">
-       {{match.team1}}
+     <a>
+       Team1
      </a>
    </div>
    <div class="col-sm-2 col-sm-push-1">
-     <a href="match/{{match.id}}">
-        {{match.score1}}:{{match.score1}}
+     <a>
+        0:0
      </a>
    </div>
    <div class="col-sm-5">
-     <a href="team/{{match.team2_id}}">
-      {{match.team2}}
+     <a>
+       Team2
      </a>
    </div>
 
