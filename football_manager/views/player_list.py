@@ -21,7 +21,7 @@ class PlayerList(View):
             cursor = conn.cursor()
             cursor.execute("""SELECT pl.id, tm.id, pi.first_name, pi.last_name, tm.name
                            FROM players as pl
-                           INNER JOIN teams as tm ON pl.team = tm.id
+                           LEFT JOIN teams as tm ON pl.team = tm.id
                            INNER JOIN personal_info as pi on pi.id = pl.personal_info""")
 
             players = []

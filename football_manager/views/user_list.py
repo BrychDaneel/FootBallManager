@@ -22,7 +22,8 @@ class UserList(View):
         
         cursor.execute("""SELECT us.id, us.login FROM users as us
                           WHERE 0 = 
-                            (SELECT COUNT(*) FROM admins as ad WHERE ad.user = us.id)""")
+                            (SELECT COUNT(*) FROM admins as ad WHERE ad.user = us.id)
+                            AND us.hiden = 0""")
         
         ars = cursor.fetchall()
         

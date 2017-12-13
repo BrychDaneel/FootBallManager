@@ -22,17 +22,9 @@
   </div>
 
   <div class="btn-group pull-center">
-     <a href="delete"  class="btn btn-default">
+     <a href="delete/{{match_id}}"  class="btn btn-default">
     Delete Match
   </a>
-  </div>
-  <div class="btn-group pull-right">
-     <a href="/add/goal/{{team2.id}}/{{match_id}}"  class="btn  pull-left btn-default">
-    Add goal
-  </a>
-      <a href="/add/foul/{{team2.id}}/{{match_id}}" class="btn  btn-default">
-        Add foal
-   </a>
   </div>
   </div>
 
@@ -41,7 +33,7 @@
 
 
     <div class="col-sm-5 text-left " style="background-color:lavender;">
-    <h2>LOGO</h2>
+    <img src="/static/{{logo1}}" width=200 height=200>
     <h2>{{team1}}</h2>
     <h2>{{country1}}</h2>
     </div>
@@ -50,7 +42,7 @@
     <h1>{{score1}}:{{score2}}</h1>
   </div>
     <div class="col-sm-5 text-right" style="background-color:lavenderblush;">
-    <h2>LOGO</h2>
+    <img src="/static/{{logo2}}" width=200 height=200>
     <h2>{{team2}}</h2>
     <h2>{{country2}}</h2>
     </div>
@@ -80,9 +72,6 @@
             {{goal.player_name}} {{goal.player_last_name}}
             {% if request.session.is_admin %}
             <div class="btn-group">
-               <a href="/goal/edit/{{goal.id}}"  class="btn btn-xs btn-default">
-              <span class="glyphicon glyphicon-edit"></span>
-            </a>
                 <a href="/goal/delete/{{goal.id}}" class="btn btn-xs btn-default">
                <span class="glyphicon glyphicon-trash"></span>
              </a>
@@ -97,9 +86,7 @@
    <div class="col-sm-5 text-right col-sm-push-1  ">
      {% if request.session.is_admin %}
      <div class="btn-group">
-        <a href="/goal/edit/{{goal.id}}"  class="btn btn-xs btn-default">
-       <span class="glyphicon glyphicon-edit"></span>
-     </a>
+        
          <a href="/goal/delete/{{goal.id}}" class="btn btn-xs btn-default">
         <span class="glyphicon glyphicon-trash"></span>
       </a>
@@ -146,10 +133,8 @@
              <p>
                {% if request.session.is_admin %}
                <div class="btn-group">
-                  <a href="/foal/edit/{{foal.id}}"  class="btn btn-xs btn-default">
-                 <span class="glyphicon glyphicon-edit"></span>
-               </a>
-                   <a href="/foal/delete/{{foal.id}}" class="btn btn-xs btn-default">
+                
+                   <a href="/foal/delete/{{card.id}}" class="btn btn-xs btn-default">
                   <span class="glyphicon glyphicon-trash"></span>
                 </a>
                </div>
@@ -165,10 +150,8 @@
       <p>
         {% if request.session.is_admin %}
         <div class="btn-group">
-           <a href="/foal/edit/{{foal.id}}"  class="btn btn-xs btn-default">
-          <span class="glyphicon glyphicon-edit"></span>
-        </a>
-            <a href="/foal/delete/{{foal.id}}" class="btn btn-xs btn-default">
+           
+            <a href="/foal/delete/{{card.id}}" class="btn btn-xs btn-default">
            <span class="glyphicon glyphicon-trash"></span>
          </a>
         </div>

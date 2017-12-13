@@ -8,6 +8,7 @@ import mysql.connector
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
+from views.log import log
 
 
 class AddArena(View):
@@ -66,6 +67,8 @@ class AddArena(View):
         city_id = rows[0][0]
 
         cursor.execute('INSERT INTO arena(name, sity) VALUES ("{}", {})'.format(name, city_id))
+        
+        log(conn, request.session['user_id'], "Add arena {}".format(name))
 
         cursor.close()
         conn.commit()

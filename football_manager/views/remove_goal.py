@@ -14,10 +14,38 @@ from django.shortcuts import redirect
 class RemoveGoal(View):
 
     template_name = "d.html"
-
+    not_admin_url = reverse_lazy("login")
+    
     def get(self, request, id):
+        if not request.session.get('is_admin', False):
+            return redirect(self.not_admin_url)
+        
+        
+        
 
-        return render(request, self.template_name)
+        conn = mysql.connector.connect(host=dbset.HOST,
+                                        database=dbset.DATABASE,
+                                        user=dbset.USER,
+                                        password=dbset.PASSWORD)
+        cursor = conn.cursor()
+        
+        
+        cursor.execute("""SELECT `match` FROM `goals`
+                        WHERE `id` = {}
+                        """.format(id))
+        
+        match = cursor.fetchone()[0]
+
+        cursor.execute("""DELETE FROM goals
+                        WHERE id = {}
+                        """.format(id))
+        cursor.close()
+        conn.commit()
+        conn.close()
+ 
+
+
+        return redirect('match_info', match)
 
     def post(self, request, id):
         pass

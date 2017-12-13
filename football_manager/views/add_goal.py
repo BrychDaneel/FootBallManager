@@ -9,6 +9,7 @@ import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from views.log import log
 
 
 
@@ -36,7 +37,7 @@ class AddGoal(View):
             conn.close()
             raise Http404
 
-        cursor.execute("""SELECT ts.playerId, pi.first_name
+        cursor.execute("""SELECT ts.playerId, CONCAT(pi.first_name, " ", pi.last_name) 
                           FROM team_state as ts
                           INNER JOIN players as pl ON ts.playerId = pl.id
                           INNER JOIN personal_info as pi on pl.personal_info  = pi.id
@@ -64,7 +65,7 @@ class AddGoal(View):
             conn.close()
             raise Http404
         
-        cursor.execute("""SELECT ts.playerId, pi.first_name
+        cursor.execute("""SELECT ts.playerId, CONCAT(pi.first_name, " ", pi.last_name)
                           FROM team_state as ts
                           INNER JOIN players as pl ON ts.playerId = pl.id
                           INNER JOIN personal_info as pi on pl.personal_info  = pi.id
@@ -86,6 +87,7 @@ class AddGoal(View):
                           VALUES ({}, '{}:{}:0', {})
                           """.format(match, minutes // 60, minutes % 60, player))
         
+        log(conn, request.session['user_id'], "Add goal at {} minute to match {}".format(minutes, match))
         
         cursor.close()
         conn.commit()

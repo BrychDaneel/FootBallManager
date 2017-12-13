@@ -22,7 +22,7 @@ class Player(View):
                                         password=dbset.PASSWORD)
             cursor = conn.cursor()
             cursor.execute("""SELECT pi.first_name, pi.last_name, tm.id, tm.name FROM players as pl
-                              INNER JOIN teams as tm ON tm.id = pl.team
+                              LEFT JOIN teams as tm ON tm.id = pl.team
                               INNER JOIN personal_info as pi ON pi.id = pl.personal_info
                               WHERE pl.id = {}""".format(id))
 
@@ -36,7 +36,7 @@ class Player(View):
 
             cursor.execute("""SELECT ht.name, gt.name, mt.id
                               FROM players as pl
-                              INNER JOIN team_state as ts ON ts.playerId = pl.id
+                              LEFT JOIN team_state as ts ON ts.playerId = pl.id
                               INNER JOIN matchs as mt ON ts.matchId = mt.id
                               INNER JOIN teams as ht ON ht.id = mt.home_team
                               INNER JOIN teams as gt ON gt.id = mt.guest_team

@@ -8,6 +8,8 @@ import mysql.connector
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
+from views.log import log
+
 
 
 class AddPlayer(View):
@@ -78,6 +80,8 @@ class AddPlayer(View):
                            ((SELECT MAX(id) FROM personal_info), {}, {}, {})
                         """.format(team, number, role)
                       )
+        
+        log(conn, request.session['user_id'], "Add foul at {}".format(minute))
 
         cursor.close()
         conn.commit()

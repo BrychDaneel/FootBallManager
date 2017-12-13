@@ -22,9 +22,10 @@ class Team(View):
                                         user=dbset.USER,
                                         password=dbset.PASSWORD)
             cursor = conn.cursor()
-            cursor.execute("""SELECT tm.name, st.name, ct.name FROM teams as tm
+            cursor.execute("""SELECT tm.name, st.name, ct.name, em.image FROM teams as tm
                               INNER JOIN sitys as st ON tm.city = st.id
                               INNER JOIN countrys as ct ON ct.id = st.country
+                              INNER JOIN emblems as em ON em.id = tm.emblem
                               WHERE tm.id = {}""".format(id))
 
             info = cursor.fetchone()
@@ -39,7 +40,7 @@ class Team(View):
                 players.append( {
                                     "id" : row[0],
                                     "first_name" : row[1],
-                                    "last_name" : row[2]
+                                    "last_name" : row[2],
                                 })
 
         finally:
@@ -50,7 +51,7 @@ class Team(View):
 
 
         return render(request, self.template_name, {"name" : info[0],
-            "city": info[1], "country": info[2], "players":players})
+            "city": info[1], "country": info[2], "players":players,  "emblem" : info[3]})
 
     def post(self, request):
         pass

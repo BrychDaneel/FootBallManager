@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 import os
 from PIL import Image
 import io
+from views.log import log
 
 
 class AddTeam(View):
@@ -19,6 +20,7 @@ class AddTeam(View):
     success_url = reverse_lazy("team_list")
     static_path = 'static'
     not_admin_url = reverse_lazy("login")
+
 
     def get(self, request):
         if not request.session.get('is_admin', False):
@@ -88,6 +90,8 @@ class AddTeam(View):
 
         cursor.execute('INSERT INTO teams(name, city, emblem) VALUES ("{}", {}, {})'
                        .format(name, city_id, emblem))
+        
+        log(conn, request.session['user_id'], "Add team {}".format(name))
 
         cursor.close()
         conn.commit()

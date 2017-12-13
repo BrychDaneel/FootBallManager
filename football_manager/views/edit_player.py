@@ -9,6 +9,7 @@ import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 from django.http import Http404
+from views.log import log
 
 
 class EditPlayer(View):
@@ -28,7 +29,7 @@ class EditPlayer(View):
                                     password=dbset.PASSWORD)
         cursor = conn.cursor()
         cursor.execute('SELECT id, name FROM teams')
-        teams = cursor.fetchall()
+        teams = cursor.fetchall() + [(0, "None")]
         cursor.execute('SELECT id, name FROM team_roles')
         roles = cursor.fetchall()
 
@@ -76,7 +77,7 @@ class EditPlayer(View):
 
 
         cursor.execute('SELECT id, name FROM teams')
-        teams = cursor.fetchall()
+        teams = cursor.fetchall()  + [(0, "None")]
         cursor.execute('SELECT id, name FROM team_roles')
         roles = cursor.fetchall()
 
@@ -96,6 +97,26 @@ class EditPlayer(View):
         role = self.player_form.cleaned_data['role']
         number = self.player_form.cleaned_data['number']
 
+        print(type(team))
+        if team == "0":
+            cursor.execute("""UPDATE players as pl
+                            INNER JOIN personal_info as pi ON pl.personal_info = pi.id
+                            SET
+                                pi.first_name = "{1}",
+                                pi.last_name = "{2}",
+                                pi.birthday = "{3}",
+                                pl.team = NULL,
+                                pl.role = {4},
+                                pl.number = {5}
+                            WHERE pl.id = {0}""".format(id, first_name, last_name, date, role, number))
+            
+            log(conn, request.session['user_id'], "change player {} {}".format(first_name, last_name))
+            
+            cursor.close()
+            conn.commit()
+            conn.close()
+            return redirect(self.success_url)
+            
         cursor.execute("""UPDATE players as pl
                           INNER JOIN personal_info as pi ON pl.personal_info = pi.id
                           SET
@@ -108,6 +129,7 @@ class EditPlayer(View):
                           WHERE pl.id = {0}
                        """.format(id, first_name, last_name, date, team, role, number))
 
+        log(conn, request.session['user_id'], "change player {} {}".format(first_name, last_name))
 
         cursor.close()
         conn.commit()

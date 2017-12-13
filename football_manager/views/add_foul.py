@@ -10,6 +10,7 @@ import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
+from views.log import log
 
 
 
@@ -105,6 +106,8 @@ class AddFoul(View):
         cursor.execute("""INSERT INTO cards(`type`, `match`, `time`, `player`) 
                           VALUES ({}, {}, "{}:{}:0", {})
                           """.format(card, match, minute // 60, minute % 60, player))
+        
+        log(conn, request.session['user_id'], "Add foul at {} minute to match {}".format(minute, match))
 
         cursor.close()
         conn.commit()

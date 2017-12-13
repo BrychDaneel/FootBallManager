@@ -38,7 +38,7 @@ class LoginView(View):
         cursor.execute("""SELECT us.id, COUNT(ad.id)
                           FROM users as us
                           LEFT JOIN admins as ad ON ad.user = us.id
-                          WHERE us.login = "{}"
+                          WHERE us.login = "{}" AND us.hiden = 0
                           GROUP BY us.id """.format(login))
         r = cursor.fetchone()
         id = r[0]

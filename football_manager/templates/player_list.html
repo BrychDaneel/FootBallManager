@@ -10,9 +10,11 @@
  <div class="list-group-item">
 
    <a href="/player/{{player.id}}" class="d-inline "> {{player.name}} {{player.last_name}} </a>
+   {% if player.team_name != None %}
    (
    <a href="/team/{{player.team_id}}" class="d-inline "> {{player.team_name}} </a>
    )
+   {% endif %}
  </div>
  {% endfor %}
 </div>
@@ -24,9 +26,11 @@
  <div class="list-group-item">
 
    <a href="/player/{{player.id}}" class="d-inline "> {{player.name}} {{player.last_name}} </a>
+   {% if player.team_name != None %}
    (
    <a href="/team/{{player.team_id}}" class="d-inline "> {{player.team_name}} </a>
    )
+   {% endif %}
   <div class="btn-group">
      <a href="/player/edit/{{player.id}}"  class="btn btn-xs btn-default">
     <span class="glyphicon glyphicon-edit"></span>

@@ -39,6 +39,9 @@ from views.remove_team import RemoveTeam
 from views.remove_arena import RemoveArena
 from views.remove_match import RemoveMatch
 from views.remove_player import RemovePlayer
+from views.match_add import AddMatch
+from views.log_view import LogView
+
 
 
 urlpatterns = [
@@ -66,5 +69,8 @@ urlpatterns = [
     url(r'^arena/delete/([0-9]+)', RemoveArena.as_view(), name="remove_arena"),
     url(r'^match/delete/([0-9]+)', RemoveMatch.as_view(), name="remove_match"),
     url(r'^goal/delete/([0-9]+)', RemoveGoal.as_view(), name="remove_goal"),
-    url(r'^foul/delete/([0-9]+)', RemoveFoul.as_view(), name="remove_foul"),
+    url(r'^foal/delete/([0-9]+)', RemoveFoul.as_view(), name="remove_foal"),
+    url(r'^match/add', AddMatch.as_view(), name="add_match"),
+    url(r'^logs', LogView.as_view(), name="logs")
+    
 ]

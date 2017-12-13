@@ -237,3 +237,6 @@ INSERT INTO `replaces`(`match`, `replaced_player`, `player`, `time`) VALUES
         WHERE pi.last_name='Хау'),
         "00:40:00"
     );
+
+INSERT INTO users(`login`, `password`) VALUES ('1234', '1234');
+INSERT INTO admins(`user`) VALUES (1);
