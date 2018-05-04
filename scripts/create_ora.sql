@@ -253,7 +253,7 @@ CREATE TABLE football.matchs (
   id NUMBER(10) CHECK (id > 0) NOT NULL,
   home_team NUMBER(10) CHECK (home_team > 0) NOT NULL,
   guest_team NUMBER(10) CHECK (guest_team > 0) NOT NULL,
-  matchStart TIMESTAMP(0) NOT NULL,
+  matchStart DATE NOT NULL,
   arena NUMBER(10) CHECK (arena > 0) NOT NULL,
   result NUMBER(10) CHECK (result > 0) NULL,
   PRIMARY KEY (id)
@@ -442,36 +442,6 @@ END;
 
 
 -- -----------------------------------------------------
--- Table `football`.`changes`
--- -----------------------------------------------------
-CREATE TABLE football.changes (
-  id NUMBER(10) NOT NULL,
-  admin NUMBER(10) CHECK (admin > 0) NOT NULL,
-  time TIMESTAMP(0) NOT NULL,
-  text BLOB NOT NULL,
-  PRIMARY KEY (id)
- ,
-  CONSTRAINT fk_changes_1
-    FOREIGN KEY (admin)
-    REFERENCES football.admins (id)
-   )
-;
-
--- Generate ID using sequence and trigger
-CREATE SEQUENCE football.changes_seq START WITH 1 INCREMENT BY 1;
-
-CREATE OR REPLACE TRIGGER football.changes_seq_tr
- BEFORE INSERT ON football.changes FOR EACH ROW
- WHEN (NEW.id IS NULL)
-BEGIN
- SELECT football.changes_seq.NEXTVAL INTO :NEW.id FROM DUAL;
-END;
-/
-
-CREATE INDEX fk_changes_1_idx ON football.changes (admin ASC);
-
-
--- -----------------------------------------------------
 -- Table `football`.`team_state`
 -- -----------------------------------------------------
 CREATE TABLE football.team_state (
@@ -504,7 +474,3 @@ END;
 /
 
 CREATE INDEX fk_team_state_2_idx ON football.team_state (playerId ASC);
-
-/*
-DROP USER football CASCADE;
-*/
