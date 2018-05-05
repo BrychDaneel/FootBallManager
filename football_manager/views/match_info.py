@@ -64,14 +64,14 @@ class MatchInfo(View):
                     'match_id' : id,
                     'goals' : goals,
                     'cards' : cards,
-                    'team1' : info[0],
-                    'team2' : info[1],
-                    'country1' : info[2],
-                    'country2' : info[3],
-                    'score1' : info[4],
-                    'score2' : info[5],
-                    'logo1' : info[6],
-                    'logo2' : info[7],
+                    'team1' : info[1],
+                    'team2' : info[2],
+                    'country1' : info[5],
+                    'country2' : info[6],
+                    'score1' : info[7],
+                    'score2' : info[8],
+                    'logo1' : info[9],
+                    'logo2' : info[10],
                   }
         return render(request, self.template_name, context)
 

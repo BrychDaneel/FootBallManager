@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 
 
@@ -16,39 +16,25 @@ class Player(View):
         try:
             id = args[0]
 
-            conn = mysql.connector.connect(host=dbset.HOST,
-                                        database=dbset.DATABASE,
-                                        user=dbset.USER,
-                                        password=dbset.PASSWORD)
+            conn = cx_Oracle.connect(dbset.URL)
             cursor = conn.cursor()
-            cursor.execute("""SELECT pi.first_name, pi.last_name, tm.id, tm.name FROM players as pl
-                              LEFT JOIN teams as tm ON tm.id = pl.team
-                              INNER JOIN personal_info as pi ON pi.id = pl.personal_info
-                              WHERE pl.id = {}""".format(id))
+            cursor.execute("SELECT * FROM TABLE(api.get_player_info({}))".format(id))
 
             info = cursor.fetchone()
 
-            cursor.execute("""SELECT COUNT(*) FROM goals as gl
-                              INNER JOIN players as pl ON pl.id = gl.player
-                              WHERE pl.id = {}""".format(id))
+            cursor.execute("SELECT api.count_player_goals({}) FROM DUAL".format(id))
 
             goals = cursor.fetchone()[0]
 
-            cursor.execute("""SELECT ht.name, gt.name, mt.id
-                              FROM players as pl
-                              LEFT JOIN team_state as ts ON ts.playerId = pl.id
-                              INNER JOIN matchs as mt ON ts.matchId = mt.id
-                              INNER JOIN teams as ht ON ht.id = mt.home_team
-                              INNER JOIN teams as gt ON gt.id = mt.guest_team
-                              WHERE pl.id = {}""".format(id))
+            cursor.execute("SELECT * FROM TABLE(api.get_player_matchs({}))".format(id))
 
             matchs = []
             rows = cursor.fetchall()
             for row in rows:
                 matchs.append( {
-                                    "home" : row[0],
-                                    "guest" : row[1],
-                                    "id" : row[2]
+                                    "home" : row[1],
+                                    "guest" : row[2],
+                                    "id" : row[0]
                                 })
 
         finally:
@@ -59,10 +45,10 @@ class Player(View):
 
 
         return render(request, self.template_name, {
-                                                        "first_name" : info[0],
-                                                        "last_name" : info[1],
-                                                        "team_id" : info[2],
-                                                        "team_name" : info[3],
+                                                        "first_name" : info[2],
+                                                        "last_name" : info[3],
+                                                        "team_id" : info[1],
+                                                        "team_name" : info[4],
                                                         "goals" : goals,
                                                         "matchs" : matchs
                                                     })

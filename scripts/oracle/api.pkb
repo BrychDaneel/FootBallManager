@@ -1,19 +1,11 @@
 CREATE OR REPLACE PACKAGE api IS
 
-    TYPE match_short IS RECORD(
-        home_name football.teams.name%TYPE,
-        guest_name football.teams.name%TYPE,
-        home_score NUMBER,
-        guest_score NUMBER,
+    TYPE match IS RECORD(
         match_id football.matchs.id%TYPE,
-        home_id football.teams.id%TYPE,
-        guest_id football.teams.id%TYPE
-    );
-    TYPE matchs IS TABLE OF match_short;
-
-    TYPE match_info IS RECORD(
         home_name football.teams.name%TYPE,
         guest_name football.teams.name%TYPE,
+        home_id football.teams.id%TYPE,
+        guest_id football.teams.id%TYPE,
         home_country football.countrys.name%TYPE,
         guest_country football.countrys.name%TYPE,
         home_score NUMBER,
@@ -21,7 +13,7 @@ CREATE OR REPLACE PACKAGE api IS
         home_image emblems.image%TYPE,
         guest_image emblems.image%TYPE
     );
-    TYPE match_info_table IS TABLE OF match_info;
+    TYPE match_table IS TABLE OF match;
 
     TYPE goal IS RECORD(
         home football.team_state.playHomeTeam%TYPE,
@@ -59,12 +51,15 @@ CREATE OR REPLACE PACKAGE api IS
     );
     TYPE player_table IS TABLE OF player;
 
-    FUNCTION get_match_list RETURN matchs PIPELINED;
-    FUNCTION get_match_info(id NUMBER) RETURN match_info_table PIPELINED;
+    FUNCTION get_match_list RETURN match_table PIPELINED;
+    FUNCTION get_match_info(id NUMBER) RETURN match_table PIPELINED;
     FUNCTION get_goals(id NUMBER) RETURN goal_table PIPELINED;
     FUNCTION get_cards(id NUMBER) RETURN card_table PIPELINED;
     FUNCTION get_arena_list RETURN arena_table PIPELINED;
     FUNCTION get_player_list RETURN player_table PIPELINED;
+    FUNCTION get_player_info(id NUMBER) RETURN player_table PIPELINED;
+    FUNCTION count_player_goals(id NUMBER) RETURN NUMBER;
+    FUNCTION get_player_matchs(id NUMBER) RETURN match_table PIPELINED;
 
 END api;
 /
@@ -73,44 +68,16 @@ SHOW ERRORS PACKAGE api;
 
 CREATE OR REPLACE PACKAGE BODY api IS
 
-    FUNCTION get_match_list RETURN matchs PIPELINED
+    FUNCTION get_match_list RETURN match_table PIPELINED
     IS
-        CURSOR match_list_cursor IS
-                SELECT
-                    home.name as home_name,
-                    guest.name as guest_name,
-                    (
-                        SELECT COUNT(*) FROM goals gl
-                        INNER JOIN team_state ts ON gl.player = ts.playerId
-                        WHERE gl.match = mt.id
-                        AND ts.playHomeTeam = 1
-                    ) as home_score,
-                    (
-                        SELECT COUNT(*) FROM goals gl
-                        INNER JOIN team_state ts ON gl.player = ts.playerId
-                        WHERE gl.match = mt.id
-                        AND ts.playHomeTeam = 0
-                    ) as guest_score,
-                    mt.id as match_id,
-                    home.id as home_id,
-                    guest.id as guest_id
-                FROM matchs mt
-                INNER JOIN teams home ON home.id = mt.home_team
-                INNER JOIN teams guest ON guest.id = mt.guest_team;
     BEGIN
-        FOR curr IN match_list_cursor LOOP
-            PIPE ROW (curr);
-        END LOOP;
-    END;
-
-
-
-    FUNCTION get_match_info(id NUMBER) RETURN match_info_table PIPELINED
-    IS
-        CURSOR match_info_cursor IS
-        SELECT
+        FOR curr IN (
+            SELECT
+                mt.id as match_id,
                 home.name as home_name,
                 guest.name as guest_name,
+                home.id as home_id,
+                guest.id as guest_id,
                 hc.name as home_country,
                 gc.name as guest_country,
                 (
@@ -136,17 +103,22 @@ CREATE OR REPLACE PACKAGE BODY api IS
             INNER JOIN countrys gc ON gs.country = gc.id
             LEFT JOIN emblems em1 ON em1.id = home.emblem
             LEFT JOIN emblems em2 ON em2.id = guest.emblem
-            WHERE mt.id = get_match_info.id;
-
-        info match_info;
-    BEGIN
-        OPEN match_info_cursor;
-        FETCH match_info_cursor INTO info;
-        PIPE ROW(info);
-        CLOSE match_info_cursor;
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
     END;
 
-
+    FUNCTION get_match_info(id NUMBER) RETURN match_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT * FROM TABLE(SELECT get_match_list() FROM DUAL)
+            WHERE match_id = get_match_info.id
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
 
     FUNCTION get_goals(id NUMBER) RETURN goal_table PIPELINED IS
     BEGIN
@@ -228,6 +200,60 @@ CREATE OR REPLACE PACKAGE BODY api IS
                 FROM players pl
                 LEFT JOIN teams tm ON pl.team = tm.id
                 INNER JOIN personal_info pi on pi.id = pl.personal_info
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+    FUNCTION get_player_info(id NUMBER) RETURN player_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT
+                pl.id as id,
+                tm.id as team_id,
+                pi.first_name as first_name,
+                pi.last_name as last_name,
+                tm.name as team_name
+                FROM players pl
+                LEFT JOIN teams tm ON pl.team = tm.id
+                INNER JOIN personal_info pi on pi.id = pl.personal_info
+                WHERE pl.id = get_player_info.id
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+    FUNCTION count_player_goals(id NUMBER) RETURN NUMBER IS
+        res NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO res
+            FROM goals gl
+            INNER JOIN players pl ON pl.id = gl.player
+            WHERE pl.id = count_player_goals.id;
+        RETURN res;
+    END;
+
+    FUNCTION get_player_matchs(id NUMBER) RETURN match_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT
+                match_id,
+                home_name,
+                guest_name,
+                home_id,
+                guest_id,
+                home_country,
+                guest_country,
+                home_score,
+                guest_score,
+                home_image,
+                guest_image
+            FROM TABLE(SELECT get_match_list FROM DUAL)
+            INNER JOIN team_state ts ON ts.matchId = match_id
+            INNER JOIN players pl ON ts.playerId = pl.id
+            WHERE pl.id = get_player_matchs.id
         )
         LOOP
             PIPE ROW (curr);

@@ -20,13 +20,13 @@ class MatchList(View):
         matchs = []
         for m in cursor.fetchall():
             matchs.append({
-                            'name1' : m[0],
-                            'name2' : m[1],
-                            'score1' : m[2],
-                            'score2' : m[3],
-                            'id' : m[4],
-                            'teamid1' : m[5],
-                            'teamid2' : m[6],
+                            'id' : m[0],
+                            'name1' : m[1],
+                            'name2' : m[2],
+                            'teamid1' : m[3],
+                            'teamid2' : m[4],
+                            'score1' : m[7],
+                            'score2' : m[8],
                             })
 
         cursor.close()
