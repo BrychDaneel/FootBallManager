@@ -1,4 +1,1 @@
-HOST = 'localhost'
-DATABASE = 'football'
-USER = 'user'
-PASSWORD = '123456'
+URL = 'football/football'
