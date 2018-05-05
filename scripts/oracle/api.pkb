@@ -87,6 +87,12 @@ CREATE OR REPLACE PACKAGE api IS
         time football.cards.time%TYPE,
         player football.cards.player%TYPE
     );
+
+    PROCEDURE add_goal(
+        match football.cards.match%TYPE,
+        time football.cards.time%TYPE,
+        player football.cards.player%TYPE
+    );
 END api;
 /
 SHOW ERRORS PACKAGE api;
@@ -398,6 +404,17 @@ CREATE OR REPLACE PACKAGE BODY api IS
                 add_foul.type, add_foul.match,
                 add_foul.time, add_foul.player
             );
+    END;
+
+    PROCEDURE add_goal(
+        match football.cards.match%TYPE,
+        time football.cards.time%TYPE,
+        player football.cards.player%TYPE
+    )
+    IS
+    BEGIN
+        INSERT INTO goals(match, time, player)
+            VALUES (add_goal.match, add_goal.time, add_goal.player);
     END;
 
 END api;

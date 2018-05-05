@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 from forms.goal_form import GoalForm
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.core.urlresolvers import reverse
@@ -22,26 +22,25 @@ class AddGoal(View):
     def get(self, request, match):
 
         if not request.session.get('is_admin', False):
-            return redirect(self.not_admin_url)
+           return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
 
-        cursor.execute(" SELECT COUNT(*) FROM matchs WHERE id = {} ".format(match))
+        cursor.execute(
+            "SELECT * FROM TABLE(api.get_match_info({}))"
+            .format(match)
+        )
 
         if not cursor.fetchall():
             cursor.close()
             conn.close()
             raise Http404
 
-        cursor.execute("""SELECT ts.playerId, CONCAT(pi.first_name, " ", pi.last_name) 
-                          FROM team_state as ts
-                          INNER JOIN players as pl ON ts.playerId = pl.id
-                          INNER JOIN personal_info as pi on pl.personal_info  = pi.id
-                          WHERE ts.matchId = {}""".format(match))
+        cursor.execute(
+            "SELECT id, first_name FROM TABLE(api.get_match_players({}))"
+            .format(match)
+        )
         players = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -50,45 +49,45 @@ class AddGoal(View):
 
     def post(self, request, match):
         if not request.session.get('is_admin', False):
-            return redirect(self.not_admin_url)
+           return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
-        
-        cursor.execute(" SELECT COUNT(*) FROM matchs WHERE id = {} ".format(match))
+
+        cursor.execute(
+            "SELECT * FROM TABLE(api.get_match_info({}))"
+            .format(match)
+        )
 
         if not cursor.fetchall():
             cursor.close()
             conn.close()
             raise Http404
-        
-        cursor.execute("""SELECT ts.playerId, CONCAT(pi.first_name, " ", pi.last_name)
-                          FROM team_state as ts
-                          INNER JOIN players as pl ON ts.playerId = pl.id
-                          INNER JOIN personal_info as pi on pl.personal_info  = pi.id
-                          WHERE ts.matchId = {}""".format(match))
+
+        cursor.execute(
+            "SELECT id, first_name FROM TABLE(api.get_match_players({}))"
+            .format(match)
+        )
         players = cursor.fetchall()
-        
+
         goal_form = GoalForm(players, request.POST)
-        
+
         if not goal_form.is_valid():
             cursor.close()
             conn.close()
             return render(request, self.template_name, {"form": goal_form})
-        
+
         minutes = goal_form.cleaned_data['minute']
         player = goal_form.cleaned_data['player']
 
+        cursor.execute("alter SESSION set NLS_TIMESTAMP_FORMAT = 'hh24:mi:ss'");
+        cursor.execute(
+            """BEGIN api.add_goal({}, '{}:{}:0', {}); END;"""
+            .format(match, minutes // 60, minutes % 60, player)
+        )
 
-        cursor.execute("""INSERT INTO goals(`match`, `time`, `player`) 
-                          VALUES ({}, '{}:{}:0', {})
-                          """.format(match, minutes // 60, minutes % 60, player))
-        
         log(conn, request.session['user_id'], "Add goal at {} minute to match {}".format(minutes, match))
-        
+
         cursor.close()
         conn.commit()
         conn.close()
