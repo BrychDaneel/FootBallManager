@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 from forms.player_form import PlayerForm
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
@@ -24,10 +24,7 @@ class AddPlayer(View):
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
         cursor.execute('SELECT id, name FROM teams')
         teams = cursor.fetchall()
@@ -44,10 +41,7 @@ class AddPlayer(View):
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
         cursor.execute('SELECT id, name FROM teams')
         teams = cursor.fetchall()
@@ -67,20 +61,19 @@ class AddPlayer(View):
         last_name = self.player_form.cleaned_data['last_name']
         date = self.player_form.cleaned_data['date'].isoformat()
 
-        cursor.execute("""INSERT INTO personal_info(first_name, last_name, birthday) VALUES
-                          ("{}", "{}", "{}")""".format(first_name, last_name, date))
-
-
         team = self.player_form.cleaned_data['team']
         role = self.player_form.cleaned_data['role']
         number = self.player_form.cleaned_data['number']
 
         cursor.execute(
-                        """INSERT INTO players(personal_info, team, `number`, role) VALUES
-                           ((SELECT MAX(id) FROM personal_info), {}, {}, {})
-                        """.format(team, number, role)
-                      )
-        
+            "alter SESSION set NLS_DATE_FORMAT = 'yyyy-mm-dd hh24:mi:ss'"
+        );
+        cursor.execute(
+            """BEGIN api.add_player('{}', '{}', '{}', {}, {}, {}); END;"""
+            .format(first_name, last_name, date, team, role, number)
+        )
+
+
         log(conn, request.session['user_id'], "Add foul at {}".format(minute))
 
         cursor.close()

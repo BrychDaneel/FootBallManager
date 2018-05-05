@@ -93,6 +93,15 @@ CREATE OR REPLACE PACKAGE api IS
         time football.cards.time%TYPE,
         player football.cards.player%TYPE
     );
+
+    PROCEDURE add_player(
+        first_name football.personal_info.first_name%TYPE,
+        last_name football.personal_info.last_name%TYPE,
+        birthday  football.personal_info.birthday%TYPE,
+        team football.players.team%TYPE,
+        role football.players.role%TYPE,
+        playerNumber football.players.playerNumber%TYPE
+    );
 END api;
 /
 SHOW ERRORS PACKAGE api;
@@ -415,6 +424,31 @@ CREATE OR REPLACE PACKAGE BODY api IS
     BEGIN
         INSERT INTO goals(match, time, player)
             VALUES (add_goal.match, add_goal.time, add_goal.player);
+    END;
+
+    PROCEDURE add_player(
+        first_name football.personal_info.first_name%TYPE,
+        last_name football.personal_info.last_name%TYPE,
+        birthday  football.personal_info.birthday%TYPE,
+        team football.players.team%TYPE,
+        role football.players.role%TYPE,
+        playerNumber football.players.playerNumber%TYPE
+    )
+    IS
+    BEGIN
+        INSERT INTO personal_info(first_name, last_name, birthday)
+            VALUES (
+                add_player.first_name,
+                add_player.last_name,
+                add_player.birthday
+            );
+        INSERT INTO players(personal_info, team, playerNumber, role)
+            VALUES (
+                (SELECT MAX(id) FROM personal_info),
+                add_player.team,
+                add_player.playerNumber,
+                add_player.role
+            );
     END;
 
 END api;
