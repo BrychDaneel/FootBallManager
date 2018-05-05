@@ -42,11 +42,19 @@ CREATE OR REPLACE PACKAGE api IS
     );
     TYPE card_table IS TABLE OF card;
 
+    TYPE arena IS RECORD(
+        id football.arena.id%TYPE,
+        name football.arena.name%TYPE,
+        sity football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    );
+    TYPE arena_table IS TABLE OF arena;
 
     FUNCTION get_match_list RETURN matchs PIPELINED;
     FUNCTION get_match_info(id NUMBER) RETURN match_info_table PIPELINED;
     FUNCTION get_goals(id NUMBER) RETURN goal_table PIPELINED;
     FUNCTION get_cards(id NUMBER) RETURN card_table PIPELINED;
+    FUNCTION get_arena_list RETURN arena_table PIPELINED;
 
 END api;
 /
@@ -158,12 +166,12 @@ CREATE OR REPLACE PACKAGE BODY api IS
     BEGIN
         FOR curr IN (
             SELECT
-                ts.playHomeTeam,
-                cr.time,
-                ct.color,
-                pi.first_name,
-                pi.last_name,
-                cr.id
+                ts.playHomeTeam as home,
+                cr.time as time,
+                ct.color as color,
+                pi.first_name as first_name,
+                pi.last_name as last_name,
+                cr.id as id
             FROM cards cr
             INNER JOIN matchs mt ON mt.id = cr.match
             INNER JOIN players pl ON pl.id = cr.player
@@ -173,6 +181,24 @@ CREATE OR REPLACE PACKAGE BODY api IS
                 ON ts.matchId = mt.id AND ts.playerId = pl.id
             WHERE mt.id = get_cards.id
             ORDER BY cr.time
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+
+    FUNCTION get_arena_list RETURN arena_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT
+                ar.id as id,
+                ar.name as name,
+                st.name as sity,
+                ct.name as country
+            FROM arena ar
+            INNER JOIN sitys st ON st.id = ar.sity
+            INNER JOIN countrys ct ON ct.id = st.country
         )
         LOOP
             PIPE ROW (curr);

@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 
 
@@ -14,19 +14,13 @@ class ArenaList(View):
     def get(self, request):
 
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
-        
-        cursor.execute("""SELECT ar.id, ar.name, st.name, ct.name
-                            FROM arena as ar
-                            INNER JOIN sitys as st ON st.id = ar.sity
-                            INNER JOIN countrys as ct ON ct.id = st.country""")
-        
+
+        cursor.execute("SELECT * FROM TABLE(api.get_arena_list)")
+
         ars = cursor.fetchall()
-        
+
         arenas = []
         for a in ars:
             arenas.append({
@@ -35,7 +29,7 @@ class ArenaList(View):
                             'country' : a[3],
                             'id' : a[0],
                             })
-        
+
         cursor.close()
         conn.close()
 
