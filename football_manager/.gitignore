@@ -1,3 +1,4 @@
 .directory
 *.bak
 *.pyc
+env/
