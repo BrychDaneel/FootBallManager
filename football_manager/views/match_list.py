@@ -15,7 +15,7 @@ class MatchList(View):
 
         conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM TABLE(api.match_list)")
+        cursor.execute("SELECT * FROM TABLE(api.get_match_list)")
 
         matchs = []
         for m in cursor.fetchall():
