@@ -102,6 +102,13 @@ CREATE OR REPLACE PACKAGE api IS
         role football.players.role%TYPE,
         playerNumber football.players.playerNumber%TYPE
     );
+
+    PROCEDURE add_team(
+        name football.teams.name%TYPE,
+        city football.sitys.name%TYPE,
+        country football.countrys.name%TYPE,
+        image football.emblems.image%TYPE
+    );
 END api;
 /
 SHOW ERRORS PACKAGE api;
@@ -449,6 +456,46 @@ CREATE OR REPLACE PACKAGE BODY api IS
                 add_player.playerNumber,
                 add_player.role
             );
+    END;
+
+    PROCEDURE add_team(
+        name football.teams.name%TYPE,
+        city football.sitys.name%TYPE,
+        country football.countrys.name%TYPE,
+        image football.emblems.image%TYPE
+    )
+    IS
+        country_id football.countrys.id%TYPE;
+        city_id football.sitys.id%TYPE;
+        emblem_id football.emblems.id%TYPE;
+        country_exist NUMBER;
+        city_exist NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO country_exist
+            FROM countrys WHERE name = add_team.country;
+
+        IF country_exist = 0 THEN
+            INSERT INTO countrys(name) VALUES (add_team.country);
+        END IF;
+
+        SELECT id INTO country_id FROM countrys
+            WHERE name = add_team.country;
+
+        SELECT COUNT(*) INTO city_exist
+            FROM sitys WHERE name = add_team.city;
+
+        IF city_exist = 0 THEN
+            INSERT INTO sitys(name, country)
+                VALUES (add_team.city, add_team.country_id);
+        END IF;
+
+        SELECT id INTO city_id FROM sitys WHERE name = add_team.city;
+
+        INSERT INTO emblems(image) VALUES (add_team.image);
+        SELECT id INTO emblem_id FROM emblems WHERE image = add_team.image;
+
+        INSERT INTO teams(name, city, emblem)
+            VALUES(add_team.name, add_team.city_id, add_team.emblem_id);
     END;
 
 END api;
