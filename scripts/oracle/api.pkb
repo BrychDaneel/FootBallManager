@@ -73,6 +73,12 @@ CREATE OR REPLACE PACKAGE api IS
     FUNCTION get_team_info(id NUMBER) RETURN team_table PIPELINED;
     FUNCTION get_team_players(id NUMBER) RETURN player_table PIPELINED;
 
+    PROCEDURE add_arena(
+        name football.arena.name%TYPE,
+        city football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    );
+
 END api;
 /
 SHOW ERRORS PACKAGE api;
@@ -314,6 +320,43 @@ CREATE OR REPLACE PACKAGE BODY api IS
             PIPE ROW (curr);
         END LOOP;
     END;
+
+
+    PROCEDURE add_arena(
+        name football.arena.name%TYPE,
+        city football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    ) IS
+    country_id NUMBER;
+    city_id NUMBER;
+    country_exist NUMBER;
+    city_exist NUMBER;
+    BEGIN
+
+        SELECT COUNT(*) INTO country_exist
+            FROM countrys WHERE name = add_arena.country;
+
+        IF country_exist = 0 THEN
+            INSERT INTO countrys(name) VALUES (add_arena.country);
+        END IF;
+
+        SELECT id INTO country_id FROM countrys
+            WHERE name = add_arena.country;
+
+        SELECT COUNT(*) INTO city_exist
+            FROM sitys WHERE name = add_arena.city;
+
+        IF city_exist = 0 THEN
+            INSERT INTO sitys(name, country)
+                VALUES (add_arena.city, add_arena.country_id);
+        END IF;
+
+        SELECT id INTO city_id FROM sitys WHERE name = add_arena.city;
+
+        INSERT INTO arena(name, sity) VALUES (name, city_id);
+
+    END;
+
 
 END api;
 /
