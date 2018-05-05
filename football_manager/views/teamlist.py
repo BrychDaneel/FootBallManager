@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 
 
@@ -15,21 +15,16 @@ class TeamList(View):
         conn = None
         cursor = None
         try:
-            conn = mysql.connector.connect(host=dbset.HOST,
-                                        database=dbset.DATABASE,
-                                        user=dbset.USER,
-                                        password=dbset.PASSWORD)
+            conn = cx_Oracle.connect(dbset.URL)
             cursor = conn.cursor()
-            cursor.execute("""SELECT tm.name, em.image, tm.id
-                            FROM teams as tm
-                            LEFT JOIN emblems as em ON tm.emblem = em.id""")
+            cursor.execute("SELECT * FROM TABLE(api.get_team_list)")
 
             teams = []
             rows = cursor.fetchall()
 
             for row in rows:
-                teams.append( { "name" : row[0], "eblem" : row[1],
-                               "id" : row[2]})
+                teams.append( { "name" : row[1], "eblem" : row[4],
+                               "id" : row[0]})
         finally:
             if cursor:
                 cursor.close()

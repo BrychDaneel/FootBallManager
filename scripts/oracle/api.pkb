@@ -10,8 +10,8 @@ CREATE OR REPLACE PACKAGE api IS
         guest_country football.countrys.name%TYPE,
         home_score NUMBER,
         guest_score NUMBER,
-        home_image emblems.image%TYPE,
-        guest_image emblems.image%TYPE
+        home_image football.emblems.image%TYPE,
+        guest_image football.emblems.image%TYPE
     );
     TYPE match_table IS TABLE OF match;
 
@@ -51,6 +51,15 @@ CREATE OR REPLACE PACKAGE api IS
     );
     TYPE player_table IS TABLE OF player;
 
+    TYPE team IS RECORD(
+        id football.teams.id%TYPE,
+        name football.teams.name%TYPE,
+        sity football.sitys.name%TYPE,
+        country football.countrys.name%TYPE,
+        image football.emblems.image%TYPE
+    );
+    TYPE team_table IS TABLE OF team;
+
     FUNCTION get_match_list RETURN match_table PIPELINED;
     FUNCTION get_match_info(id NUMBER) RETURN match_table PIPELINED;
     FUNCTION get_goals(id NUMBER) RETURN goal_table PIPELINED;
@@ -60,6 +69,9 @@ CREATE OR REPLACE PACKAGE api IS
     FUNCTION get_player_info(id NUMBER) RETURN player_table PIPELINED;
     FUNCTION count_player_goals(id NUMBER) RETURN NUMBER;
     FUNCTION get_player_matchs(id NUMBER) RETURN match_table PIPELINED;
+    FUNCTION get_team_list RETURN team_table PIPELINED;
+    FUNCTION get_team_info(id NUMBER) RETURN team_table PIPELINED;
+    FUNCTION get_team_players(id NUMBER) RETURN player_table PIPELINED;
 
 END api;
 /
@@ -254,6 +266,49 @@ CREATE OR REPLACE PACKAGE BODY api IS
             INNER JOIN team_state ts ON ts.matchId = match_id
             INNER JOIN players pl ON ts.playerId = pl.id
             WHERE pl.id = get_player_matchs.id
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+    FUNCTION get_team_list RETURN team_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT
+                tm.id as id,
+                tm.name as name,
+                st.name as sity,
+                ct.name as county,
+                em.image as image
+            FROM teams tm
+            INNER JOIN sitys st ON tm.city = st.id
+            INNER JOIN countrys ct ON ct.id = st.country
+            LEFT JOIN emblems em ON em.id = tm.emblem
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+    FUNCTION get_team_info(id NUMBER) RETURN team_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT *
+            FROM TABLE(get_team_list)
+            WHERE id = get_team_info.id
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+    FUNCTION get_team_players(id NUMBER) RETURN player_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT *
+            FROM TABLE(get_player_list)
+            WHERE team_id = get_team_players.id
         )
         LOOP
             PIPE ROW (curr);
