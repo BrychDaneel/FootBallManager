@@ -79,6 +79,14 @@ CREATE OR REPLACE PACKAGE api IS
         country football.countrys.name%TYPE
     );
 
+    FUNCTION get_match_players(id NUMBER) RETURN player_table PIPELINED;
+
+    PROCEDURE add_foul(
+        type football.cards.type%TYPE,
+        match football.cards.match%TYPE,
+        time football.cards.time%TYPE,
+        player football.cards.player%TYPE
+    );
 END api;
 /
 SHOW ERRORS PACKAGE api;
@@ -357,6 +365,40 @@ CREATE OR REPLACE PACKAGE BODY api IS
 
     END;
 
+
+    FUNCTION get_match_players(id NUMBER) RETURN player_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT
+                pl.id,
+                pl.team_id,
+                pl.first_name,
+                pl.last_name,
+                pl.team_name
+            FROM TABLE(get_player_list) pl
+            INNER JOIN team_state ts
+                ON ts.playerId = pl.id
+            WHERE ts.matchId = get_match_players.id
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+    PROCEDURE add_foul(
+        type football.cards.type%TYPE,
+        match football.cards.match%TYPE,
+        time football.cards.time%TYPE,
+        player football.cards.player%TYPE
+    )
+    IS
+    BEGIN
+        INSERT INTO cards(type, match, time, player)
+            VALUES (
+                add_foul.type, add_foul.match,
+                add_foul.time, add_foul.player
+            );
+    END;
 
 END api;
 /
