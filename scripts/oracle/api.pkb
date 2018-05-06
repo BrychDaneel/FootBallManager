@@ -61,17 +61,31 @@ CREATE OR REPLACE PACKAGE api IS
     TYPE team_table IS TABLE OF team;
 
     FUNCTION get_match_list RETURN match_table PIPELINED;
-    FUNCTION get_match_info(id NUMBER) RETURN match_table PIPELINED;
-    FUNCTION get_goals(id NUMBER) RETURN goal_table PIPELINED;
-    FUNCTION get_cards(id NUMBER) RETURN card_table PIPELINED;
     FUNCTION get_arena_list RETURN arena_table PIPELINED;
     FUNCTION get_player_list RETURN player_table PIPELINED;
+    FUNCTION get_team_list RETURN team_table PIPELINED;
+
+    FUNCTION get_match_info(id NUMBER) RETURN match_table PIPELINED;
+    FUNCTION get_arena_info(id NUMBER) RETURN arena_table PIPELINED;
     FUNCTION get_player_info(id NUMBER) RETURN player_table PIPELINED;
+    FUNCTION get_team_info(id NUMBER) RETURN team_table PIPELINED;
+
+    FUNCTION get_goals(id NUMBER) RETURN goal_table PIPELINED;
+    FUNCTION get_cards(id NUMBER) RETURN card_table PIPELINED;
+
     FUNCTION count_player_goals(id NUMBER) RETURN NUMBER;
     FUNCTION get_player_matchs(id NUMBER) RETURN match_table PIPELINED;
-    FUNCTION get_team_list RETURN team_table PIPELINED;
-    FUNCTION get_team_info(id NUMBER) RETURN team_table PIPELINED;
     FUNCTION get_team_players(id NUMBER) RETURN player_table PIPELINED;
+
+    PROCEDURE insert_city(
+        name football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    );
+
+    FUNCTION get_city_id(
+        name football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    ) RETURN football.sitys.id%TYPE;
 
     PROCEDURE add_arena(
         name football.arena.name%TYPE,
@@ -108,6 +122,13 @@ CREATE OR REPLACE PACKAGE api IS
         city football.sitys.name%TYPE,
         country football.countrys.name%TYPE,
         image football.emblems.image%TYPE
+    );
+
+    PROCEDURE edit_arena(
+        id football.arena.id%TYPE,
+        name football.arena.name%TYPE,
+        city football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
     );
 END api;
 /
@@ -351,40 +372,61 @@ CREATE OR REPLACE PACKAGE BODY api IS
         END LOOP;
     END;
 
+    PROCEDURE insert_city(
+        name football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    )
+    IS
+        country_id football.countrys.id%TYPE;
+        country_exist NUMBER;
+        city_exist NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO country_exist
+            FROM countrys ct WHERE ct.name = insert_city.country;
+
+        IF country_exist = 0 THEN
+            INSERT INTO countrys(name) VALUES (insert_city.country);
+        END IF;
+
+        SELECT id INTO country_id FROM countrys ct
+            WHERE ct.name = insert_city.country;
+
+        SELECT COUNT(*) INTO city_exist
+            FROM sitys st WHERE st.name = insert_city.name;
+
+        IF city_exist = 0 THEN
+            INSERT INTO sitys(name, country)
+                VALUES (insert_city.name, insert_city.country_id);
+        END IF;
+    END;
+
+    FUNCTION get_city_id(
+        name football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    ) RETURN football.sitys.id%TYPE
+    IS
+        city_id football.sitys.id%TYPE;
+    BEGIN
+        SELECT st.id INTO city_id
+            FROM sitys st
+            INNER JOIN countrys ct ON st.country = ct.id
+            WHERE st.name=get_city_id.name AND ct.name = get_city_id.country;
+
+        RETURN city_id;
+    END;
 
     PROCEDURE add_arena(
         name football.arena.name%TYPE,
         city football.sitys.name%TYPE,
         country football.countrys.name%TYPE
     ) IS
-    country_id NUMBER;
-    city_id NUMBER;
-    country_exist NUMBER;
-    city_exist NUMBER;
+        city_id football.sitys.id%TYPE;
     BEGIN
+        insert_city(city, country);
+        SELECT get_city_id(city, country) INTO city_id FROM DUAL;
 
-        SELECT COUNT(*) INTO country_exist
-            FROM countrys WHERE name = add_arena.country;
-
-        IF country_exist = 0 THEN
-            INSERT INTO countrys(name) VALUES (add_arena.country);
-        END IF;
-
-        SELECT id INTO country_id FROM countrys
-            WHERE name = add_arena.country;
-
-        SELECT COUNT(*) INTO city_exist
-            FROM sitys WHERE name = add_arena.city;
-
-        IF city_exist = 0 THEN
-            INSERT INTO sitys(name, country)
-                VALUES (add_arena.city, add_arena.country_id);
-        END IF;
-
-        SELECT id INTO city_id FROM sitys WHERE name = add_arena.city;
-
-        INSERT INTO arena(name, sity) VALUES (name, city_id);
-
+        INSERT INTO arena(name, sity)
+            VALUES (add_arena.name, add_arena.city_id);
     END;
 
 
@@ -465,37 +507,50 @@ CREATE OR REPLACE PACKAGE BODY api IS
         image football.emblems.image%TYPE
     )
     IS
-        country_id football.countrys.id%TYPE;
         city_id football.sitys.id%TYPE;
         emblem_id football.emblems.id%TYPE;
-        country_exist NUMBER;
-        city_exist NUMBER;
     BEGIN
-        SELECT COUNT(*) INTO country_exist
-            FROM countrys WHERE name = add_team.country;
 
-        IF country_exist = 0 THEN
-            INSERT INTO countrys(name) VALUES (add_team.country);
-        END IF;
-
-        SELECT id INTO country_id FROM countrys
-            WHERE name = add_team.country;
-
-        SELECT COUNT(*) INTO city_exist
-            FROM sitys WHERE name = add_team.city;
-
-        IF city_exist = 0 THEN
-            INSERT INTO sitys(name, country)
-                VALUES (add_team.city, add_team.country_id);
-        END IF;
-
-        SELECT id INTO city_id FROM sitys WHERE name = add_team.city;
+        insert_city(city, country);
+        SELECT get_city_id(city, country) INTO add_team.city_id FROM DUAL;
 
         INSERT INTO emblems(image) VALUES (add_team.image);
         SELECT id INTO emblem_id FROM emblems WHERE image = add_team.image;
 
         INSERT INTO teams(name, city, emblem)
             VALUES(add_team.name, add_team.city_id, add_team.emblem_id);
+    END;
+
+
+    PROCEDURE edit_arena(
+        id football.arena.id%TYPE,
+        name football.arena.name%TYPE,
+        city football.sitys.name%TYPE,
+        country football.countrys.name%TYPE
+    )
+    IS
+        city_id football.sitys.id%TYPE;
+    BEGIN
+        insert_city(city, country);
+        SELECT get_city_id(city, country) INTO city_id FROM DUAL;
+
+        UPDATE arena
+            SET name = edit_arena.name, sity = edit_arena.city_id
+            WHERE id = edit_arena.id;
+    END;
+
+
+    FUNCTION get_arena_info(id NUMBER) RETURN arena_table PIPELINED
+    IS
+    BEGIN
+        FOR curr IN (
+            SELECT *
+            FROM TABLE(get_arena_list) ar
+            WHERE ar.id = get_arena_info.id
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
     END;
 
 END api;

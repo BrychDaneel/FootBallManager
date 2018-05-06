@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 from forms.arena_form import ArenaForm
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
@@ -21,18 +21,14 @@ class EditArena(View):
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                        database=dbset.DATABASE,
-                                        user=dbset.USER,
-                                        password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
 
-        cursor.execute("""SELECT ar.name, st.name, ct.name
-                          FROM arena as ar
-                          INNER JOIN sitys as st ON st.id = ar.sity
-                          INNER JOIN countrys as ct ON ct.id = st.country
-                          WHERE ar.id = {}
-                          """.format(id))
+        cursor.execute(
+            """SELECT name, sity, country
+               FROM TABLE(api.get_arena_info({}))"""
+            .format(id)
+        )
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -52,12 +48,8 @@ class EditArena(View):
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                        database=dbset.DATABASE,
-                                        user=dbset.USER,
-                                        password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
-
 
         cursor.execute(" SELECT COUNT(*) FROM arena WHERE id = {} ".format(id))
 
@@ -70,39 +62,12 @@ class EditArena(View):
             conn.close()
             return render(request, self.template_name, {"form":arena_form})
 
-
-
-
         county = arena_form.cleaned_data['country']
         name = arena_form.cleaned_data['arena_name']
         city = arena_form.cleaned_data['city']
 
-        cursor.execute('SELECT id FROM countrys WHERE name = "{}"'.format(county))
-
-        rows = cursor.fetchall()
-
-        if not rows:
-            cursor.execute('INSERT INTO countrys(name) VALUES ("{}")'.format(county))
-            cursor.execute('SELECT id FROM countrys WHERE name = "{}"'.format(county))
-            rows = cursor.fetchall()
-
-        county_id = rows[0][0]
-
-
-        cursor.execute('SELECT id FROM sitys WHERE name = "{}"'.format(city))
-        rows = cursor.fetchall()
-
-        if not rows:
-            cursor.execute('INSERT INTO sitys(name, country) VALUES ("{}", {})'.format(city, county_id))
-            cursor.execute('SELECT id FROM sitys WHERE name = "{}"'.format(city))
-            rows = cursor.fetchall()
-
-        city_id = rows[0][0]
-
-        cursor.execute("""UPDATE arena
-                          SET name = "{1}", sity = {2}
-                          WHERE id = {0}"""
-                          .format(id, name, city_id))
+        cursor.execute("""BEGIN api.edit_arena({}, '{}', '{}', '{}'); END;"""
+                          .format(id, name, city, county))
 
         cursor.close()
         conn.commit()
