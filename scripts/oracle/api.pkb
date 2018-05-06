@@ -69,10 +69,17 @@ CREATE OR REPLACE PACKAGE api IS
     );
     TYPE team_table IS TABLE OF team;
 
+    TYPE football_user IS RECORD(
+        id football.users.id%TYPE,
+        login football.users.login%TYPE
+    );
+    TYPE football_user_table IS TABLE OF football_user;
+
     FUNCTION get_match_list RETURN match_table PIPELINED;
     FUNCTION get_arena_list RETURN arena_table PIPELINED;
     FUNCTION get_player_list RETURN player_table PIPELINED;
     FUNCTION get_team_list RETURN team_table PIPELINED;
+    FUNCTION get_user_list RETURN football_user_table PIPELINED;
 
     FUNCTION get_match_info(id NUMBER) RETURN match_table PIPELINED;
     FUNCTION get_arena_info(id NUMBER) RETURN arena_table PIPELINED;
@@ -98,6 +105,15 @@ CREATE OR REPLACE PACKAGE api IS
     PROCEDURE delete_match(id NUMBER);
     PROCEDURE delete_player(id NUMBER);
     PROCEDURE delete_team(id NUMBER);
+
+    FUNCTION user_exists(login football.users.login%TYPE) RETURN NUMBER;
+    FUNCTION is_admin(login football.users.login%TYPE) RETURN NUMBER;
+    FUNCTION get_user_id(login football.users.login%TYPE) RETURN NUMBER;
+    FUNCTION authificate(
+        login football.users.login%TYPE,
+        password football.users.password%TYPE
+    )
+    RETURN NUMBER;
 
     PROCEDURE insert_city(
         name football.sitys.name%TYPE,
@@ -169,6 +185,11 @@ CREATE OR REPLACE PACKAGE api IS
         city football.sitys.name%TYPE,
         country  football.countrys.name%TYPE,
         image football.emblems.image%TYPE
+    );
+
+    PROCEDURE register(
+        login football.users.login%TYPE,
+        password football.users.password%TYPE
     );
 
 END api;
@@ -707,6 +728,74 @@ CREATE OR REPLACE PACKAGE BODY api IS
             FROM goals g
             WHERE g.id = get_goal_match.id;
         RETURN match;
+    END;
+
+    PROCEDURE register(
+        login football.users.login%TYPE,
+        password football.users.password%TYPE
+    )
+    IS
+    BEGIN
+        INSERT INTO users(login, password)
+            VALUES (register.login, register.password);
+    END;
+
+
+    FUNCTION user_exists(login football.users.login%TYPE) RETURN NUMBER IS
+        result NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO result FROM users u
+            WHERE u.login = user_exists.login;
+        RETURN result;
+    END;
+
+    FUNCTION authificate(
+        login football.users.login%TYPE,
+        password football.users.password%TYPE
+    )
+    RETURN NUMBER
+    IS
+        result NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO result FROM users u
+            WHERE
+                u.login = authificate.login
+                AND u.password = authificate.password;
+        RETURN result;
+    END;
+
+    FUNCTION is_admin(login football.users.login%TYPE) RETURN NUMBER IS
+        result NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO result
+            FROM users us
+            INNER JOIN admins ad ON ad.userId = us.id
+            WHERE us.login = is_admin.login AND us.hiden = 0;
+        RETURN result;
+    END;
+
+    FUNCTION get_user_id(login football.users.login%TYPE) RETURN NUMBER IS
+        result NUMBER;
+    BEGIN
+        SELECT us.id INTO result
+            FROM users us
+            WHERE us.login = get_user_id.login AND us.hiden = 0;
+        RETURN result;
+    END;
+
+
+    FUNCTION get_user_list RETURN football_user_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT us.id as id, us.login as login
+                FROM users us
+                WHERE
+                    0 = (SELECT COUNT(*) FROM admins ad WHERE ad.userId = us.id)
+                    AND us.hiden = 0
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
     END;
 
 END api;

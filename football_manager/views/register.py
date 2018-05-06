@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 from forms.register_form import RegisterForm
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
@@ -32,13 +32,10 @@ class RegisterView(View):
 
         login = register_form.cleaned_data['username']
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO users(login, password) VALUES ("{}","{}")'.format(login,
-                                                                                     password))
+        cursor.execute("BEGIN api.register('{}','{}'); END;"
+                        .format(login, password))
         cursor.close()
         conn.commit()
         conn.close()
