@@ -24,10 +24,10 @@ class RemoveGoal(View):
         cursor = conn.cursor()
 
 
-        cursor.execute("""SELECT get_goal_match({}) FROM DUAL;""".format(id))
+        cursor.execute("""SELECT api.get_goal_match({}) FROM DUAL""".format(id))
         match = cursor.fetchone()[0]
 
-        cursor.execute("""BEGIN api.delete_foul({}); END;""".format(id))
+        cursor.execute("""BEGIN api.delete_goal({}); END;""".format(id))
         cursor.close()
         conn.commit()
         conn.close()

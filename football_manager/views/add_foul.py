@@ -95,7 +95,7 @@ class AddFoul(View):
         player = foul_form.cleaned_data['player']
         minute = foul_form.cleaned_data['minute']
 
-        cursor.execute("alter SESSION set NLS_TIMESTAMP_FORMAT = 'hh24:mi:ss';")
+        cursor.execute("alter SESSION set NLS_TIMESTAMP_FORMAT = 'hh24:mi:ss'")
         cursor.execute(
             "BEGIN api.add_foul({}, {}, '{}:{}:0', {}); END;"
             .format(card, match, minute // 60, minute % 60, player)
