@@ -192,6 +192,14 @@ CREATE OR REPLACE PACKAGE api IS
         password football.users.password%TYPE
     );
 
+
+    PROCEDURE add_match(
+        home_team football.matchs.home_team%TYPE,
+        guest_team football.matchs.guest_team%TYPE,
+        arena football.matchs.arena%TYPE,
+        matchStart football.matchs.matchStart%TYPE
+    );
+
 END api;
 /
 SHOW ERRORS PACKAGE api;
@@ -796,6 +804,35 @@ CREATE OR REPLACE PACKAGE BODY api IS
         LOOP
             PIPE ROW (curr);
         END LOOP;
+    END;
+
+    PROCEDURE add_match(
+        home_team football.matchs.home_team%TYPE,
+        guest_team football.matchs.guest_team%TYPE,
+        arena football.matchs.arena%TYPE,
+        matchStart football.matchs.matchStart%TYPE
+    ) IS
+        match_id NUMBER;
+    BEGIN
+        INSERT INTO matchs(home_team, guest_team, arena, matchStart)
+            VALUES(
+                add_match.home_team,
+                add_match.guest_team,
+                add_match.arena,
+                add_match.matchStart
+            );
+
+        SELECT MAX(id) INTO match_id FROM matchs;
+
+        INSERT INTO team_state(matchId, playerId, playerNumber, playHomeTeam)
+            SELECT match_id, pl.id, pl.playerNumber, 1
+                FROM players pl
+                WHERE pl.team = home_team;
+
+        INSERT INTO team_state(matchId, playerId, playerNumber, playHomeTeam)
+            SELECT match_id, pl.id, pl.playerNumber, 0
+                FROM players pl
+                WHERE pl.team = guest_team;
     END;
 
 END api;
