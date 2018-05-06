@@ -1,0 +1,237 @@
+@charset "UTF-8";
+/* сброс стилей браузера */
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  vertical-align: baseline; }
+
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block; }
+
+body {
+  line-height: 1.2; }
+
+ol {
+  padding-left: 1.4em;
+  list-style: decimal; }
+
+ul {
+  padding-left: 1.4em;
+  list-style: square; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+/* конец кода сброса стилей браузера */
+body {
+  background: url("../images/back.jpg") 100% 100% no-repeat;
+  background-size: 100% 100%;
+  background-position: 0 0;
+  background-attachment: fixed; }
+
+.navWrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 10px 5px rgba(30, 30, 30, 0.8);
+  padding: 0 20px; }
+
+.mainWrapper {
+  min-height: 800px;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50px;
+  box-shadow: 0 0 10px 5px rgba(30, 30, 30, 0.8); }
+
+.footWrapper {
+  margin-top: 50px;
+  color: white;
+  background: 100px 0 black;
+  padding-top: 20px; }
+
+@keyframes logoAnim {
+  from {
+    transform: scale(0.1) rotate(360deg);
+    opacity: 0.3; }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1; } }
+@keyframes phoneAnim {
+  from {
+    transform: scale(0.1);
+    opacity: 0.3; }
+  to {
+    transform: scale(1);
+    opacity: 1; } }
+header {
+  display: flex;
+  max-width: 1000px;
+  margin: 0 auto;
+  color: white;
+  height: 100%;
+  justify-content: space-between;
+  align-items: center; }
+  header .logo {
+    float: left;
+    box-sizing: border-box;
+    height: 80%;
+    display: block; }
+    header .logo img {
+      border: 20px;
+      height: 100%; }
+  header h1 {
+    text-transform: uppercase;
+    font-size: 1.2em; }
+  header .phone {
+    float: left;
+    font-size: 45px;
+    float: left;
+    padding-left: 30px;
+    background: url(../images/operators.png) 0px 10px no-repeat;
+    background-size: 20px, 100%;
+    animation: phoneAnim 1s; }
+  header .login {
+    float: right;
+    margin: auto 0; }
+    header .login a {
+      font-size: 1.5em;
+      color: white;
+      border: 4px solid green;
+      border-radius: 15px;
+      padding: 7px 15px;
+      margin-left: 15px;
+      text-decoration: none; }
+      header .login a:hover {
+        background: green; }
+  header .user {
+    float: right;
+    margin: auto 0; }
+    header .user .name {
+      font-size: 1.5em; }
+    header .user a {
+      font-size: 1.5em;
+      color: white;
+      border: 4px solid green;
+      border-radius: 15px;
+      padding: 7px 15px;
+      margin-left: 15px;
+      text-decoration: none; }
+      header .user a:hover {
+        background: green; }
+
+nav {
+  margin-top: 100px;
+  margin-bottom: 30px;
+  width: 500px; }
+  nav ul {
+    display: flex;
+    list-style: none;
+    flex-flow: wrap; }
+    nav ul li {
+      flex: 1;
+      padding: 20px;
+      font-size: 1em;
+      border-left: 1px solid white;
+      text-align: center;
+      text-transform: uppercase;
+      flex-basis: 100px; }
+    nav ul li:first-child {
+      border-left: none; }
+    nav ul a {
+      color: rgba(200, 200, 200, 0.9);
+      font-weight: bold;
+      text-decoration: none; }
+      nav ul a:hover {
+        text-decoration: none; }
+
+main {
+  padding: 20px;
+  width: 100%;
+  font-size: 1.5em;
+  padding: 100px; }
+  main .list-group-item {
+    background-color: transparent; }
+  main h1 {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 2em;
+    font-weight: normal;
+    color: rgba(120, 120, 120, 0.8);
+    margin-bottom: 20px; }
+
+footer {
+  max-width: 1000px;
+  margin: 0 auto; }
+  footer .info {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; }
+  footer .logo {
+    height: 70px; }
+  footer .logo img {
+    height: 100%;
+    margin-bottom: 5px; }
+  footer .copy {
+    font-size: 0.8em; }
+  footer small {
+    padding: 0 20px 0 20px;
+    margin-left: 30px; }
+  footer .payments {
+    box-sizing: border-box;
+    clear: both;
+    display: block;
+    margin: 0 auto;
+    padding: 20px; }
+
+input, select {
+  border: 1px #00c800 solid;
+  background: transparent;
+  padding: 5px;
+  margin-left: 20px; }
+  input:focus, select:focus {
+    background: rgba(0, 200, 0, 0.1);
+    box-shadow: 0px 0px 10px rgba(0, 200, 0, 0.4); }
+
+form {
+  font-size: 1.2em;
+  margin: auto;
+  width: 600px;
+  margin-top: 50px; }
+  form h1 {
+    text-align: center; }
+  form p {
+    margin-bottom: 20px; }
+    form p label {
+      display: inline-block;
+      width: 250px;
+      text-align: right; }
+    form p input, form p select {
+      width: 300px;
+      font-size: 1em; }
+  form td {
+    padding: 10px; }
+  form input[type="submit"] {
+    background-color: green;
+    padding: 10px;
+    width: 50%;
+    margin-top: 10px;
+    font-size: 1em;
+    margin: 40px auto;
+    display: block; }
+    form input[type="submit"]:hover {
+      background-color: rgba(0, 150, 20, 0.8); }
+  form .errorlist {
+    color: red; }
+    form .errorlist ul {
+      list-style-type: disc; }
+
+/*# sourceMappingURL=styles.css.map */
