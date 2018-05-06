@@ -88,7 +88,16 @@ CREATE OR REPLACE PACKAGE api IS
 
     FUNCTION get_team_emblem(id NUMBER) RETURN emblem_table PIPELINED;
 
+    FUNCTION get_foul_match(id NUMBER) RETURN NUMBER;
+    FUNCTION get_goal_match(id NUMBER) RETURN NUMBER;
+
     PROCEDURE delete_emblem(id NUMBER);
+    PROCEDURE delete_arena(id NUMBER);
+    PROCEDURE delete_foul(id NUMBER);
+    PROCEDURE delete_goal(id NUMBER);
+    PROCEDURE delete_match(id NUMBER);
+    PROCEDURE delete_player(id NUMBER);
+    PROCEDURE delete_team(id NUMBER);
 
     PROCEDURE insert_city(
         name football.sitys.name%TYPE,
@@ -649,6 +658,55 @@ CREATE OR REPLACE PACKAGE BODY api IS
     PROCEDURE delete_emblem(id NUMBER) IS
     BEGIN
         DELETE FROM emblems em WHERE em.id = delete_emblem.id;
+    END;
+
+    PROCEDURE delete_arena(id NUMBER) IS
+    BEGIN
+        DELETE FROM arena ar WHERE ar.id = delete_arena.id;
+    END;
+
+    PROCEDURE delete_foul(id NUMBER) IS
+    BEGIN
+        DELETE FROM cards fl WHERE fl.id = delete_foul.id;
+    END;
+
+    PROCEDURE delete_goal(id NUMBER) IS
+    BEGIN
+        DELETE FROM goals gl WHERE gl.id = delete_goal.id;
+    END;
+
+    PROCEDURE delete_match(id NUMBER) IS
+    BEGIN
+        DELETE FROM matchs mt WHERE mt.id = delete_match.id;
+    END;
+
+    PROCEDURE delete_player(id NUMBER) IS
+    BEGIN
+        DELETE FROM players pl WHERE pl.id = delete_player.id;
+    END;
+
+    PROCEDURE delete_team(id NUMBER) IS
+    BEGIN
+        DELETE FROM teams tm WHERE tm.id = delete_team.id;
+    END;
+
+
+    FUNCTION get_foul_match(id NUMBER) RETURN NUMBER IS
+        match NUMBER;
+    BEGIN
+        SELECT c.match INTO get_foul_match.match
+            FROM cards c
+            WHERE c.id = get_foul_match.id;
+        RETURN match;
+    END;
+
+    FUNCTION get_goal_match(id NUMBER) RETURN NUMBER IS
+        match NUMBER;
+    BEGIN
+        SELECT g.match INTO get_goal_match.match
+            FROM goals g
+            WHERE g.id = get_goal_match.id;
+        RETURN match;
     END;
 
 END api;
