@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 from forms.player_form import PlayerForm
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
@@ -23,21 +23,17 @@ class EditPlayer(View):
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
+
         cursor = conn.cursor()
         cursor.execute('SELECT id, name FROM teams')
         teams = cursor.fetchall() + [(0, "None")]
         cursor.execute('SELECT id, name FROM team_roles')
         roles = cursor.fetchall()
 
-        cursor.execute("""SELECT pi.first_name, pi.last_name, pi.birthday,
-                          pl.team, pl.role, pl.number
-                          FROM players as pl
-                          INNER JOIN personal_info as pi ON pi.id = pl.personal_info
-                          WHERE pl.id = {}
+        cursor.execute("""SELECT first_name, last_name, birthday,
+                          team_name, role, playerNumber
+                          FROM TABLE(api.get_player_info({}))
                           """.format(id))
 
         rows = cursor.fetchall()
@@ -62,10 +58,7 @@ class EditPlayer(View):
             return redirect(self.not_admin_url)
 
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
 
         cursor.execute("SELECT COUNT(*) FROM players WHERE id = {}".format(id))
@@ -97,42 +90,20 @@ class EditPlayer(View):
         role = self.player_form.cleaned_data['role']
         number = self.player_form.cleaned_data['number']
 
-        print(type(team))
         if team == "0":
-            cursor.execute("""UPDATE players as pl
-                            INNER JOIN personal_info as pi ON pl.personal_info = pi.id
-                            SET
-                                pi.first_name = "{1}",
-                                pi.last_name = "{2}",
-                                pi.birthday = "{3}",
-                                pl.team = NULL,
-                                pl.role = {4},
-                                pl.number = {5}
-                            WHERE pl.id = {0}""".format(id, first_name, last_name, date, role, number))
-            
-            log(conn, request.session['user_id'], "change player {} {}".format(first_name, last_name))
-            
-            cursor.close()
-            conn.commit()
-            conn.close()
-            return redirect(self.success_url)
-            
-        cursor.execute("""UPDATE players as pl
-                          INNER JOIN personal_info as pi ON pl.personal_info = pi.id
-                          SET
-                                pi.first_name = "{1}",
-                                pi.last_name = "{2}",
-                                pi.birthday = "{3}",
-                                pl.team = {4},
-                                pl.role = {5},
-                                pl.number = {6}
-                          WHERE pl.id = {0}
-                       """.format(id, first_name, last_name, date, team, role, number))
+            team = "NULL"
+
+        cursor.execute(
+            "alter SESSION set NLS_DATE_FORMAT = 'yyyy-mm-dd hh24:mi:ss'"
+        )
+        cursor.execute(
+            """BEGIN api.edit_player({}, '{}', '{}', '{}', {}, {}, {}); END;"""
+            .format(id, first_name, last_name, date, team, role, number)
+        )
 
         log(conn, request.session['user_id'], "change player {} {}".format(first_name, last_name))
 
         cursor.close()
         conn.commit()
         conn.close()
-
         return redirect(self.success_url)

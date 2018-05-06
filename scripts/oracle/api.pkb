@@ -47,7 +47,10 @@ CREATE OR REPLACE PACKAGE api IS
         team_id football.teams.id%TYPE,
         first_name football.personal_info.first_name%TYPE,
         last_name football.personal_info.last_name%TYPE,
-        team_name football.teams.name%TYPE
+        team_name football.teams.name%TYPE,
+        birthday football.personal_info.birthday%TYPE,
+        role football.players.role%TYPE,
+        playerNumber football.players.playerNumber%TYPE
     );
     TYPE player_table IS TABLE OF player;
 
@@ -130,6 +133,17 @@ CREATE OR REPLACE PACKAGE api IS
         city football.sitys.name%TYPE,
         country football.countrys.name%TYPE
     );
+
+    PROCEDURE edit_player(
+        id football.players.id%TYPE,
+        first_name football.personal_info.first_name%TYPE,
+        last_name football.personal_info.last_name%TYPE,
+        birthday  football.personal_info.birthday%TYPE,
+        team football.players.team%TYPE,
+        role football.players.role%TYPE,
+        playerNumber football.players.playerNumber%TYPE
+    );
+
 END api;
 /
 SHOW ERRORS PACKAGE api;
@@ -265,7 +279,10 @@ CREATE OR REPLACE PACKAGE BODY api IS
                 tm.id as team_id,
                 pi.first_name as first_name,
                 pi.last_name as last_name,
-                tm.name as team_name
+                tm.name as team_name,
+                pi.birthday as birthday,
+                pl.role as role,
+                pl.playerNumber as playerNumber
                 FROM players pl
                 LEFT JOIN teams tm ON pl.team = tm.id
                 INNER JOIN personal_info pi on pi.id = pl.personal_info
@@ -278,15 +295,8 @@ CREATE OR REPLACE PACKAGE BODY api IS
     FUNCTION get_player_info(id NUMBER) RETURN player_table PIPELINED IS
     BEGIN
         FOR curr IN (
-            SELECT
-                pl.id as id,
-                tm.id as team_id,
-                pi.first_name as first_name,
-                pi.last_name as last_name,
-                tm.name as team_name
-                FROM players pl
-                LEFT JOIN teams tm ON pl.team = tm.id
-                INNER JOIN personal_info pi on pi.id = pl.personal_info
+            SELECT *
+                FROM TABLE(get_player_list) pl
                 WHERE pl.id = get_player_info.id
         )
         LOOP
@@ -433,12 +443,7 @@ CREATE OR REPLACE PACKAGE BODY api IS
     FUNCTION get_match_players(id NUMBER) RETURN player_table PIPELINED IS
     BEGIN
         FOR curr IN (
-            SELECT
-                pl.id,
-                pl.team_id,
-                pl.first_name,
-                pl.last_name,
-                pl.team_name
+            SELECT pl.*
             FROM TABLE(get_player_list) pl
             INNER JOIN team_state ts
                 ON ts.playerId = pl.id
@@ -551,6 +556,35 @@ CREATE OR REPLACE PACKAGE BODY api IS
         LOOP
             PIPE ROW (curr);
         END LOOP;
+    END;
+
+    PROCEDURE edit_player(
+        id football.players.id%TYPE,
+        first_name football.personal_info.first_name%TYPE,
+        last_name football.personal_info.last_name%TYPE,
+        birthday  football.personal_info.birthday%TYPE,
+        team football.players.team%TYPE,
+        role football.players.role%TYPE,
+        playerNumber football.players.playerNumber%TYPE
+    )
+    IS
+    BEGIN
+        UPDATE (
+            SELECT pi.* FROM players pl
+                INNER JOIN personal_info pi ON pl.personal_info = pi.id
+                WHERE pl.id = edit_player.id
+            ) pi
+            SET
+                pi.first_name = edit_player.first_name,
+                pi.last_name = edit_player.last_name,
+                pi.birthday = edit_player.birthday;
+
+        UPDATE players pl
+            SET
+                pl.team = edit_player.team,
+                pl.role = edit_player.role,
+                pl.playerNumber = edit_player.playerNumber
+            WHERE pl.id = edit_player.id;
     END;
 
 END api;
