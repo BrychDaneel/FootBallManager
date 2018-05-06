@@ -474,3 +474,30 @@ END;
 /
 
 CREATE INDEX fk_team_state_2_idx ON football.team_state (playerId ASC);
+
+
+-- -----------------------------------------------------
+-- Table `football`.`changes`
+-- -----------------------------------------------------
+
+CREATE TABLE football.changes (
+  id NUMBER(10) CHECK (id > 0) NOT NULL,
+  admin NUMBER(10) CHECK (admin > 0) NOT NULL,
+  time DATE NOT NULL,
+  text VARCHAR2(100) NOT NULL,
+ PRIMARY KEY (id),
+    CONSTRAINT fk_changes_1
+    FOREIGN KEY (admin)
+    REFERENCES football.admins (id)
+    )
+;
+
+CREATE SEQUENCE football.changes_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER football.changes_seq_tr
+ BEFORE INSERT ON football.changes FOR EACH ROW
+ WHEN (NEW.id IS NULL)
+BEGIN
+ SELECT football.changes_seq.NEXTVAL INTO :NEW.id FROM DUAL;
+END;
+/

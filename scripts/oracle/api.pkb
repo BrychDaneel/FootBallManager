@@ -75,11 +75,20 @@ CREATE OR REPLACE PACKAGE api IS
     );
     TYPE football_user_table IS TABLE OF football_user;
 
+    TYPE log_record IS RECORD(
+        user_id football.users.id%TYPE,
+        user_name football.users.login%TYPE,
+        time football.changes.time%TYPE,
+        text football.changes.text%TYPE
+    );
+    TYPE log_record_table IS TABLE OF log_record;
+
     FUNCTION get_match_list RETURN match_table PIPELINED;
     FUNCTION get_arena_list RETURN arena_table PIPELINED;
     FUNCTION get_player_list RETURN player_table PIPELINED;
     FUNCTION get_team_list RETURN team_table PIPELINED;
     FUNCTION get_user_list RETURN football_user_table PIPELINED;
+    FUNCTION get_log_list RETURN log_record_table PIPELINED;
 
     FUNCTION get_match_info(id NUMBER) RETURN match_table PIPELINED;
     FUNCTION get_arena_info(id NUMBER) RETURN arena_table PIPELINED;
@@ -198,6 +207,11 @@ CREATE OR REPLACE PACKAGE api IS
         guest_team football.matchs.guest_team%TYPE,
         arena football.matchs.arena%TYPE,
         matchStart football.matchs.matchStart%TYPE
+    );
+
+    PROCEDURE log(
+        admin football.admins.id%TYPE,
+        text football.changes.text%TYPE
     );
 
 END api;
@@ -833,6 +847,34 @@ CREATE OR REPLACE PACKAGE BODY api IS
             SELECT match_id, pl.id, pl.playerNumber, 0
                 FROM players pl
                 WHERE pl.team = guest_team;
+    END;
+
+
+    PROCEDURE log(
+        admin football.admins.id%TYPE,
+        text football.changes.text%TYPE
+    )
+    IS
+    BEGIN
+        INSERT INTO changes(admin, time, text)
+            VALUES (log.admin, SYSDATE(), log.text);
+    END;
+
+    FUNCTION get_log_list RETURN log_record_table PIPELINED IS
+    BEGIN
+        FOR curr IN (
+            SELECT
+                us.id as user_id,
+                us.login as user_name,
+                log.time as time,
+                log.text as text
+            FROM changes log
+            INNER JOIN users us ON us.id = log.admin
+            ORDER BY log.time
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
     END;
 
 END api;

@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
@@ -18,17 +18,12 @@ class LogView(View):
 
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
-        
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
-        cursor.execute("""SELECT us.id, log.time, us.login, log.`text`
-                          FROM changes as log
-                          INNER JOIN users as us ON us.id = log.admin
-                          ORDER BY log.time""")
+        cursor.execute("""SELECT user_id, time, user_name, text
+                          FROM TABLE(api.get_log_list)""")
 
         logs = []
         rows = cursor.fetchall()
@@ -46,4 +41,3 @@ class LogView(View):
 
     def post(self, request):
         pass
-
