@@ -54,6 +54,12 @@ CREATE OR REPLACE PACKAGE api IS
     );
     TYPE player_table IS TABLE OF player;
 
+    TYPE emblem IS RECORD(
+        id football.teams.id%TYPE,
+        image football.emblems.image%TYPE
+    );
+    TYPE emblem_table IS TABLE OF emblem;
+
     TYPE team IS RECORD(
         id football.teams.id%TYPE,
         name football.teams.name%TYPE,
@@ -79,6 +85,10 @@ CREATE OR REPLACE PACKAGE api IS
     FUNCTION count_player_goals(id NUMBER) RETURN NUMBER;
     FUNCTION get_player_matchs(id NUMBER) RETURN match_table PIPELINED;
     FUNCTION get_team_players(id NUMBER) RETURN player_table PIPELINED;
+
+    FUNCTION get_team_emblem(id NUMBER) RETURN emblem_table PIPELINED;
+
+    PROCEDURE delete_emblem(id NUMBER);
 
     PROCEDURE insert_city(
         name football.sitys.name%TYPE,
@@ -142,6 +152,14 @@ CREATE OR REPLACE PACKAGE api IS
         team football.players.team%TYPE,
         role football.players.role%TYPE,
         playerNumber football.players.playerNumber%TYPE
+    );
+
+    PROCEDURE edit_team(
+        id football.teams.id%TYPE,
+        name football.teams.name%TYPE,
+        city football.sitys.name%TYPE,
+        country  football.countrys.name%TYPE,
+        image football.emblems.image%TYPE
     );
 
 END api;
@@ -585,6 +603,52 @@ CREATE OR REPLACE PACKAGE BODY api IS
                 pl.role = edit_player.role,
                 pl.playerNumber = edit_player.playerNumber
             WHERE pl.id = edit_player.id;
+    END;
+
+    FUNCTION get_team_emblem(id NUMBER) RETURN emblem_table PIPELINED
+    IS
+    BEGIN
+        FOR curr IN (
+            SELECT em.id, em.image
+                FROM teams tm
+                LEFT JOIN emblems em ON tm.emblem = em.id
+                WHERE tm.id = get_team_emblem.id
+        )
+        LOOP
+            PIPE ROW (curr);
+        END LOOP;
+    END;
+
+
+    PROCEDURE edit_team(
+        id football.teams.id%TYPE,
+        name football.teams.name%TYPE,
+        city football.sitys.name%TYPE,
+        country  football.countrys.name%TYPE,
+        image football.emblems.image%TYPE
+    )
+    IS
+        emblem_id football.emblems.id%TYPE;
+        city_id football.sitys.id%TYPE;
+    BEGIN
+        INSERT INTO emblems(image) VALUES (edit_team.image);
+        SELECT em.id INTO emblem_id FROM emblems em
+            WHERE em.image = edit_team.image;
+
+        insert_city(city, country);
+        SELECT get_city_id(city, country) INTO city_id FROM DUAL;
+
+        UPDATE teams tm SET
+            tm.name = edit_team.name,
+            tm.city = edit_team.city_id,
+            tm.emblem = edit_team.emblem_id
+        WHERE tm.id = edit_team.id;
+
+    END;
+
+    PROCEDURE delete_emblem(id NUMBER) IS
+    BEGIN
+        DELETE FROM emblems em WHERE em.id = delete_emblem.id;
     END;
 
 END api;

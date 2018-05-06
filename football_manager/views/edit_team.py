@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.template.loader import get_template
 from django.template import Template, Context, RequestContext
 from forms.team_form import TeamForm
-import mysql.connector
+import cx_Oracle
 import football_manager.db_settings as dbset
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
@@ -25,19 +25,15 @@ class EditTeam(View):
             return redirect(self.not_admin_url)
 
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                                    database=dbset.DATABASE,
-                                    user=dbset.USER,
-                                    password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
 
 
-        cursor.execute("""SELECT tm.name, st.name, ct.name
-                          FROM teams as tm
-                          INNER JOIN sitys as st ON st.id = tm.city
-                          INNER JOIN countrys as ct ON ct.id = st.country
-                          WHERE tm.id = {}
-                          """.format(id))
+        cursor.execute(
+            """SELECT name, sity, country
+            FROM TABLE(api.get_team_info({}))"""
+            .format(id)
+        )
 
         rows = cursor.fetchall()
         cursor.close()
@@ -58,16 +54,11 @@ class EditTeam(View):
         if not request.session.get('is_admin', False):
             return redirect(self.not_admin_url)
 
-        conn = mysql.connector.connect(host=dbset.HOST,
-                            database=dbset.DATABASE,
-                            user=dbset.USER,
-                            password=dbset.PASSWORD)
+        conn = cx_Oracle.connect(dbset.URL)
         cursor = conn.cursor()
 
-        cursor.execute("""SELECT em.id, em.image
-                          FROM teams as tm
-                          LEFT JOIN emblems as em ON tm.emblem = em.id
-                          WHERE tm.id = {}
+        cursor.execute("""SELECT id, image
+                          FROM TABLE(api.get_team_emblem({}))
                           """.format(id))
 
         rows = cursor.fetchall()
@@ -93,49 +84,16 @@ class EditTeam(View):
         image = Image.open(io.BytesIO(team_form.cleaned_data['emblem'].read()))
 
 
-        cursor.execute("""INSERT INTO emblems(image) VALUES ("{}")""".format(pname))
-        cursor.execute("""SELECT id FROM emblems WHERE image = "{}" """.format(pname))
-
-        emblem = cursor.fetchone()[0]
 
         name = team_form.cleaned_data['team_name']
-
-
-        county = team_form .cleaned_data['country']
+        country = team_form .cleaned_data['country']
         city = team_form .cleaned_data['city']
 
-        cursor.execute('SELECT id FROM countrys WHERE name = "{}"'.format(county))
-
-        rows = cursor.fetchall()
-
-        if not rows:
-            cursor.execute('INSERT INTO countrys(name) VALUES ("{}")'.format(county))
-            cursor.execute('SELECT id FROM countrys WHERE name = "{}"'.format(county))
-            rows = cursor.fetchall()
-
-        county_id = rows[0][0]
-
-
-        cursor.execute('SELECT id FROM sitys WHERE name = "{}"'.format(city))
-        rows = cursor.fetchall()
-
-        if not rows:
-            cursor.execute('INSERT INTO sitys(name, country) VALUES ("{}", {})'.format(city, county_id))
-            cursor.execute('SELECT id FROM sitys WHERE name = "{}"'.format(city))
-            rows = cursor.fetchall()
-
-        city_id = rows[0][0]
-
-
-        cursor.execute("""UPDATE teams SET
-                            name = "{1}",
-                            city = {2},
-                            emblem = {3}
-                        WHERE id = {0}"""
-                       .format(id, name, city_id, emblem))
+        cursor.execute("BEGIN api.edit_team({}, '{}', '{}', '{}', '{}'); END;"
+                        .format(id, name, city, country, pname))
 
         if old_emblem:
-            cursor.execute("DELETE FROM emblems WHERE id = {}".format(old_emblem))
+            cursor.execute("BEGIN api.delete_emblem({}); END;".format(old_emblem))
 
         cursor.close()
         conn.commit()
